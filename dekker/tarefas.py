@@ -1,5 +1,6 @@
 import math
 import dekker as d
+
 # func1: função cuja raiz é solução da Tarefa 3.1
 #=================================================================
 def func1(k):
