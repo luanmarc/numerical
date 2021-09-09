@@ -103,16 +103,13 @@ def secant_dicotomy(f, approx, ant, last_approx, abs_error, rel_error):
 
 def main():
     ''' Some tests for the Dekker method '''
-    st = input("Which function would you like to use? (Ex: x ** 2 - 3) ")
+    st = input('Which function would you like to use? (Ex: x ** 2 - 3) ')
     f = lambda x: eval(st)
-    a = float(input("Head of the interval: "))
-    b = float(input("Tail of the interval: "))
-    abs_error = float(input("Absolute error: "))
-    rel_error = float(input("Relative error: "))
+    a = float(input('Head of the interval: '))
+    b = float(input('Tail of the interval: '))
+    abs_error = float(input('Absolute error: '))
+    rel_error = float(input('Relative error: '))
     dekker(f, a, b, abs_error, rel_error)
-
-def g(x):
-    return x ** 2 - 2
 
 if __name__ == '__main__':
     main()
