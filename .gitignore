@@ -1,3 +1,7 @@
+## Emacs backup files to be ignored:
+#*#
+*~
+
 ## Latex related files to be ignored:
 
 ## Core latex/pdflatex auxiliary files:
