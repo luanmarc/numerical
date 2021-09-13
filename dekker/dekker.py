@@ -9,13 +9,14 @@
 
 def dekker(f, a, b, abs_error, rel_error, verbose = True):
     """
-    Dekker method for finding approximations of zeros of a given function f
-    in the interval [a, b] with an absolute error and relative error
-    of abs_error and rel_error, respectively. You can toggle the verbose if
-    you don't wish any printing.
+    Dekker method for finding approximations of zeros of a given function
+    f in the interval [a, b] with an absolute error and relative error of
+    abs_error and rel_error, respectively.
+    You can toggle the verbose if you don't wish any printing.
     """
     if f(a) * f(b) > 0:
-        e = 'The function must change sign in the interval [{}, {}]'.format(a, b)
+        e = ('The function must change sign'
+             'in the interval [{}, {}]'.format(a, b))
         raise Exception(e)
 
     # Variable initializations
@@ -44,7 +45,8 @@ def dekker(f, a, b, abs_error, rel_error, verbose = True):
         if do_dicotomy:
             next_approx = (approx + ant) / 2
         else:
-            next_approx = secant_dicotomy(f, approx, ant, last_approx, abs_error, rel_error)
+            next_approx = secant_dicotomy(f, approx, ant, last_approx,
+                                          abs_error, rel_error)
 
         # Calculates the next antipode
         next_ant = approx
@@ -67,8 +69,10 @@ def dekker(f, a, b, abs_error, rel_error, verbose = True):
         iteration += 1
 
     if verbose:
-        print('{} is the approximation, obtained in {} iterations'.format(approx, iteration))
+        print('{} is the approximation, obtained '
+              'in {} iterations'.format(approx, iteration))
     return approx
+
 
 def is_approx(approx, ant, abs_error, rel_error):
     """
@@ -80,6 +84,7 @@ def is_approx(approx, ant, abs_error, rel_error):
     if abs_diff / 2 < tol:
         return True
     return False
+
 
 def secant_dicotomy(f, approx, ant, last_approx, abs_error, rel_error):
     """
@@ -101,9 +106,11 @@ def secant_dicotomy(f, approx, ant, last_approx, abs_error, rel_error):
         return s
     return m
 
+
 def main():
     ''' Some tests for the Dekker method '''
-    st = input('Which function would you like to use? (Ex: x ** 2 - 3) ')
+    st = input('Which function would you like to use? '
+               '(Use x as a variable, ex: x ** 2 - 3):\n')
     f = lambda x: eval(st)
     a = float(input('Head of the interval: '))
     b = float(input('Tail of the interval: '))
