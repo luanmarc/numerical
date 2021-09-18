@@ -24,28 +24,28 @@ def dekker(f, a, b, abs_error, rel_error, verbose = True):
     approx      = b      # Current approximation
     last_approx = b      # Last approximation
     fsize       = abs(approx - ant) # Interval size in iteration 0 (mod 4)
-    do_dicotomy = False  # Toggle the use of the dicotomy method
-    dicotomy_counter = 0 # Counts the number of dicotomy uses
+    do_dichotomy = False  # Toggle the use of the dichotomy method
+    dichotomy_counter = 0 # Counts the number of dichotomy uses
 
     iteration = 0
     while not (is_approx(approx, ant, abs_error, rel_error) or f(approx) == 0):
-        if dicotomy_counter == 3:
-            # Stop dicotomy and reset the counter
-            do_dicotomy      = False
-            dicotomy_counter = 0
+        if dichotomy_counter == 3:
+            # Stop dichotomy and reset the counter
+            do_dichotomy      = False
+            dichotomy_counter = 0
 
         # Checks if the interval decreased sufficiently in the last 4 iterations
         if iteration != 0 and iteration % 4 == 0:
             last_fsize = fsize
             fsize      = abs(approx - ant) # Updates 4th interval size
             if abs(approx - ant) > last_fsize / 8:
-                # Apply dicotomy 3 times in a row
-                do_dicotomy = True
+                # Apply dichotomy 3 times in a row
+                do_dichotomy = True
 
-        if do_dicotomy:
+        if do_dichotomy:
             next_approx = (approx + ant) / 2
         else:
-            next_approx = secant_dicotomy(f, approx, ant, last_approx,
+            next_approx = secant_dichotomy(f, approx, ant, last_approx,
                                           abs_error, rel_error)
 
         # Calculates the next antipode
@@ -64,8 +64,8 @@ def dekker(f, a, b, abs_error, rel_error, verbose = True):
         approx      = next_approx
         ant         = next_ant
 
-        if do_dicotomy:
-            dicotomy_counter += 1
+        if do_dichotomy:
+            dichotomy_counter += 1
         iteration += 1
 
     if verbose:
@@ -86,12 +86,12 @@ def is_approx(approx, ant, abs_error, rel_error):
     return False
 
 
-def secant_dicotomy(f, approx, ant, last_approx, abs_error, rel_error):
+def secant_dichotomy(f, approx, ant, last_approx, abs_error, rel_error):
     """
-    Implements a mix of the secant and dicotomy methods, returning
+    Implements a mix of the secant and dichotomy methods, returning
     the next approximation for the Dekker method.
     """
-    # Mix of dicotomy and secant method approximations
+    # Mix of dichotomy and secant method approximations
     m = (approx + ant) / 2
     s = m
     if f(approx) != f(last_approx):
