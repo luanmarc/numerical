@@ -7,7 +7,8 @@
 # Dekker method for finding roots of a given function.
 ################################################################################
 
-def dekker(f, a, b, abs_error, rel_error, verbose = True):
+def dekker(f, a: float, b: float, abs_error: float, 
+            rel_error: float, verbose = True) -> float:
     """
     Dekker method for finding approximations of zeros of a given function
     f in the interval [a, b] with an absolute error and relative error of
@@ -37,7 +38,7 @@ def dekker(f, a, b, abs_error, rel_error, verbose = True):
         # Checks if the interval decreased sufficiently in the last 4 iterations
         if iteration != 0 and iteration % 4 == 0:
             last_fsize = fsize
-            fsize      = abs(approx - ant) # Updates 4th interval size
+            fsize      = abs(approx - ant)
             if abs(approx - ant) > last_fsize / 8:
                 # Apply dichotomy 3 times in a row
                 do_dichotomy = True
