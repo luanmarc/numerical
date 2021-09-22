@@ -1,76 +1,81 @@
 import math
+from typing import Callable
 import dekker as dek
 
-def func1(k):
+
+def func1(k: float) -> float:
     ''' Solution to homework 3.1 '''
     return 10 - math.exp(-2 * k) * (10 - 3 * k) - 20 * k
 
 
-def func2(x):
+def func2(x: float) -> float:
     ''' Solution to homework 3.2 '''
     return x * (math.exp(10 / x) + math.exp(-10 / x) - 2) - 1
 
 
-def butterfly(theta):
+def butterfly(theta: float) -> float:
     ''' Butterfly function '''
     return math.e ** math.sin(theta) - 2 * math.cos(4 * theta)
 
 
-def card(theta):
+def card(theta: float) -> float:
     ''' Cardioid function '''
     return 1 - math.sin(theta)
 
 
-def clover(theta):
+def clover(theta: float) -> float:
     return math.sin(4 * theta) ** 2 + math.cos(4 * theta)
 
 
-def curly(theta):
+def curly(theta: float) -> float:
     return 1 + 2 * math.sin(theta / 2)
 
 
-def there_is_zero(f, head, tail, n):
+def there_is_zero(f: Callable[[float], float],
+                  head: float, tail: float, subint: int) -> bool:
     '''
     Checks if the function has a zero in [head, tail], looking at subint
-    subintervals 
+    subintervals
     '''
     length = tail - head
-    step = length / n
+    step = length / subint 
     t = head
     a = f(head)
-    for i in range (1, n + 1): 
+    for i in range(1, subint + 1):
         t += step
         if a * f(t) <= 0:
             return True
     return False
 
 
-def dekpol(f1, f2, head = 0, tail = 2 * math.pi, abs_error = 0.000001,
-           rel_error = 0.000001, N = 400):
+def dekpol(f1: Callable[[float], float], f2: Callable[[float], float],
+           head: float = 0, tail: float = 2 * math.pi,
+           abs_error: float = 0.000001, rel_error: float = 0.000001,
+           subint: int = 400) -> subintone:
     ''' Finds intersections between two given curves f1 and f2 '''
 
-    if there_is_zero(f1, head, tail, N) and there_is_zero(f2, head, tail, N):
-        print('The curves intersect at the origin and at the ' 
+    if there_is_zero(f1, head, tail, subint) and there_is_zero(f2, head, tail, subint):
+        print('The curves intersect at the origin and at the '
               'following points:')
     else:
         print('The curves intersect at the following points:')
-    
-    inter = [] # Array with the computed intersections
+
+    inter = []  # Array with the computed intersections
     length = tail - head
-    step = length / N
-    for i in range (N):
+    step = length / subint
+    for i in range(subint):
         h = head + i * step
         t = h + step
         if (f1(h) - f2(h)) * (f1(t) - f2(t)) <= 0:
             theta = dek.dekker(lambda x: f1(x) - f2(x), h, t,
-                                  abs_error, rel_error, False)
+                               abs_error, rel_error, False)
             r = f1(theta)
             if r < 0:
                 r = -r
                 theta += math.pi
             inter.append((r, theta % (2 * math.pi)))
-    
-    for i in range(N):
+
+    for i in range(subint):
         h = head + i * step
         t = h + step
         if (f1(h) + f2(h + math.pi)) * (f1(t) + f2(t + math.pi)) <= 0:
@@ -83,12 +88,13 @@ def dekpol(f1, f2, head = 0, tail = 2 * math.pi, abs_error = 0.000001,
                                abs_error, rel_error, False)
             if f2(theta) > 0:
                 inter.append((f2(theta), theta % (2 * math.pi)))
-        
+
     for i in range(len(inter)):
-        print('(r{}, theta{}) ='.format(i, i), inter[i])
+        print('(r{n}, theta{n}) ='.format(n = i), inter[i])
 
 
 def print_inter(f1, f2, *args):
+    ''' Function for printing intersections '''
     nf1 = f1.__name__
     nf2 = f2.__name__
     print('Intersections between {} and {}'.format(nf1, nf2))
