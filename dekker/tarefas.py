@@ -29,11 +29,13 @@ def card(theta):
     return 1 - math.sin(theta)
 
 
+
 def clover(theta):
     '''
     Function that looks like an 'M'
     '''
     return math.sin(4 * theta) ** 2 + math.cos(4 * theta)
+
 
 
 def curly(theta):
@@ -42,7 +44,7 @@ def curly(theta):
     '''
     return 1 + 2 * math.sin(theta / 2)
 
-
+ 
 # checks whether the function reaches zero and changes signal at least once within the given interval
 def there_is_zero(f,head,tail,N):
     length = tail -head
@@ -103,6 +105,7 @@ def main():
     '''
     Solutions to the given homework problems
     '''
+
     print("----------------------------------------------------------------")
     print('Test for the first homework: ',end="\n\n")
     dek.dekker(func1, 0.1, 1, 0.000001, 0.000001)
