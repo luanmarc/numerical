@@ -29,12 +29,16 @@ def curly(theta):
     return 1 + 2 * math.sin(theta / 2)
 
 
-def there_is_zero(f, head, tail, N):
+def there_is_zero(f, head, tail, n):
+    '''
+    Checks if the function has a zero in [head, tail], looking at subint
+    subintervals 
+    '''
     length = tail - head
-    step = length / N
+    step = length / n
     t = head
     a = f(head)
-    for i in range (1, N + 1): 
+    for i in range (1, n + 1): 
         t += step
         if a * f(t) <= 0:
             return True
@@ -42,8 +46,8 @@ def there_is_zero(f, head, tail, N):
 
 
 def dekpol(f1, f2, head = 0, tail = 2 * math.pi, abs_error = 0.000001,
-           rel_error = 0.000001, N = 400, rneg = True):
-    ''' Finds intersections between two given curves f1 and f2. '''
+           rel_error = 0.000001, N = 400):
+    ''' Finds intersections between two given curves f1 and f2 '''
 
     if there_is_zero(f1, head, tail, N) and there_is_zero(f2, head, tail, N):
         print('The curves intersect at the origin and at the ' 
@@ -57,25 +61,20 @@ def dekpol(f1, f2, head = 0, tail = 2 * math.pi, abs_error = 0.000001,
     for i in range (N):
         h = head + i * step
         t = h + step
-        if (f1(h) - f2(h)) * (f1(t) - f2(t))<=0:
-            theta = dekker.dekker(lambda x: f1(x) - f2(x), h, t,
-                               abs_error, rel_error, False)
+        if (f1(h) - f2(h)) * (f1(t) - f2(t)) <= 0:
+            theta = dek.dekker(lambda x: f1(x) - f2(x), h, t,
+                                  abs_error, rel_error, False)
             r = f1(theta)
             if r < 0:
                 r = -r
                 theta += math.pi
             inter.append((r, theta % (2 * math.pi)))
-        
-    if not rneg:
-        for i in range(len(inter)):
-            print('(r{}, theta{}) ='.format(i, i), inter[i])
-        return
     
-    for i in range (N):
+    for i in range(N):
         h = head + i * step
         t = h + step
         if (f1(h) + f2(h + math.pi)) * (f1(t) + f2(t + math.pi)) <= 0:
-            theta = dek.dekker(lambda x: f1(x) +f2(x + math.pi), h, t,
+            theta = dek.dekker(lambda x: f1(x) + f2(x + math.pi), h, t,
                                abs_error, rel_error, False)
             if f1(theta) > 0:
                 inter.append((f1(theta), theta % (2 * math.pi)))
@@ -87,6 +86,7 @@ def dekpol(f1, f2, head = 0, tail = 2 * math.pi, abs_error = 0.000001,
         
     for i in range(len(inter)):
         print('(r{}, theta{}) ='.format(i, i), inter[i])
+
 
 def print_inter(f1, f2, *args):
     nf1 = f1.__name__
