@@ -51,7 +51,7 @@ def there_is_zero(f: Callable[[float], float],
 def dekpol(f1: Callable[[float], float], f2: Callable[[float], float],
            head: float = 0, tail: float = 2 * math.pi,
            abs_error: float = 0.000001, rel_error: float = 0.000001,
-           subint: int = 400) -> subintone:
+           subint: int = 400) -> None:
     ''' Finds intersections between two given curves f1 and f2 '''
 
     if there_is_zero(f1, head, tail, subint) and there_is_zero(f2, head, tail, subint):
