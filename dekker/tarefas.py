@@ -4,12 +4,12 @@ import dekker as dek
 
 
 def func1(k: float) -> float:
-    ''' Solution to homework 3.1 '''
+    ''' Solution to homework 1 '''
     return 10 - math.exp(-2 * k) * (10 - 3 * k) - 20 * k
 
 
 def func2(x: float) -> float:
-    ''' Solution to homework 3.2 '''
+    ''' Solution to homework 2 '''
     return x * (math.exp(10 / x) + math.exp(-10 / x) - 2) - 1
 
 
@@ -49,10 +49,14 @@ def there_is_zero(f: Callable[[float], float],
 
 
 def dekpol(f1: Callable[[float], float], f2: Callable[[float], float],
-           head: float = 0, tail: float = 2 * math.pi,
-           abs_error: float = 0.000001, rel_error: float = 0.000001,
-           subint: int = 400) -> None:
-    ''' Finds intersections between two given curves f1 and f2 '''
+           head: float, tail: float, abs_error: float,
+           rel_error: float, subint: int = 400) -> None:
+    '''
+    Finds intersections between two given curves f1 and f2 in the interval
+    [head, tail]. The parameter abs_error and rel_error tracks the absolute
+    and relative errors. The number of subintervals to look for the
+    intersections is specified by subint
+    '''
 
     if there_is_zero(f1, head, tail, subint) and there_is_zero(f2, head, tail, subint):
         print('The curves intersect at the origin and at the '
@@ -105,28 +109,30 @@ def print_inter(f1, f2, *args):
 
 def main():
     ''' Solutions to the given homework problems '''
+    absl = 0.00001  # Absolute error
+    rel = 0.00001   # Relative error
     print('----------------------------------------------------------------')
     print('Test for the first homework:')
     print()
-    dek.dekker(func1, 0.1, 1, 0.000001, 0.000001)
+    dek.dekker(func1, 0.1, 1, absl, rel)
     print()
     print("----------------------------------------------------------------")
 
     print('----------------------------------------------------------------')
     print('Test for the second homework:')
     print()
-    dek.dekker(func2, 90, 110, 0.000001, 0.000001)
+    dek.dekker(func2, 90, 110, absl, rel)
     print()
     print("----------------------------------------------------------------")
 
     print('----------------------------------------------------------------')
     print('Tests for the third homework:')
-    print_inter(butterfly, card)
-    print_inter(butterfly, clover)
-    print_inter(butterfly, curly, 0, 4 * math.pi)
-    print_inter(card, curly, 0, 4 * math.pi)
-    print_inter(clover, curly, 0, 4 * math.pi)
-    print_inter(card, clover)
+    print_inter(butterfly, card, 0, 2 * math.pi, absl, rel)
+    print_inter(butterfly, clover, 0, 2 * math.pi, absl, rel)
+    print_inter(butterfly, curly, 0, 4 * math.pi, absl, rel)
+    print_inter(card, curly, 0, 4 * math.pi, absl, rel)
+    print_inter(clover, curly, 0, 4 * math.pi, absl, rel)
+    print_inter(card, clover, 0, 2 * math.pi, absl, rel)
     print('----------------------------------------------------------------')
 
 

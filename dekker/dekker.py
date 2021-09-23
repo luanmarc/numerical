@@ -18,7 +18,7 @@ def dekker(f: Callable[[float], float], a: float, b: float, abs_error: float,
     You can toggle the verbose if you don't wish any printing.
     '''
     if f(a) * f(b) > 0:
-        e = ('The function must change sign'
+        e = ('The function must change sign '
              'in the interval [{}, {}]'.format(a, b))
         raise Exception(e)
 
