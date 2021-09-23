@@ -130,7 +130,7 @@ def main():
     print('----------------------------------------------------------------')
     print('Tests for the third homework:')
     absl = 0.00001
-    rel = 0.000001
+    rel = 0.00001
     print_inter(butterfly, card, 0, 2 * math.pi, absl, rel)
     print_inter(butterfly, clover, 0, 2 * math.pi, absl, rel)
     print_inter(butterfly, curly, 0, 4 * math.pi, absl, rel)
