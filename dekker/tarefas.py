@@ -110,7 +110,7 @@ def print_inter(f1, f2, *args):
 def main():
     ''' Solutions to the given homework problems '''
     absl = 0.00001  # Absolute error
-    rel = 0.00001   # Relative error
+    rel = 0.001     # Relative error
     print('----------------------------------------------------------------')
     print('Test for the first homework:')
     print()
@@ -121,12 +121,16 @@ def main():
     print('----------------------------------------------------------------')
     print('Test for the second homework:')
     print()
+    absl = 0.001
+    rel = 0.0001
     dek.dekker(func2, 90, 110, absl, rel)
     print()
     print("----------------------------------------------------------------")
 
     print('----------------------------------------------------------------')
     print('Tests for the third homework:')
+    absl = 0.00001
+    rel = 0.01
     print_inter(butterfly, card, 0, 2 * math.pi, absl, rel)
     print_inter(butterfly, clover, 0, 2 * math.pi, absl, rel)
     print_inter(butterfly, curly, 0, 4 * math.pi, absl, rel)
