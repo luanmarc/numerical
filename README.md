@@ -1,1 +1,1 @@
-# Some Numerical Methods Implemented in Python
+# Numerical Methods Class
