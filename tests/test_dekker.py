@@ -1,6 +1,14 @@
+'''
+Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
+         Victor Manuel Dias Saliba     (nUSP: 11807702)
+         Luan Marc                     (nUSP: 11809090)
+
+Computacao III (CCM): EP 1
+Test for Dekker method for finding roots of a given function.
+'''
 import math
 from typing import Callable
-import dekker as dek
+from numerical.roots.dekker import dekker
 
 
 def func1(k: float) -> float:
@@ -71,7 +79,7 @@ def dekpol(f1: Callable[[float], float], f2: Callable[[float], float],
         h = head + i * step
         t = h + step
         if (f1(h) - f2(h)) * (f1(t) - f2(t)) <= 0:
-            theta = dek.dekker(lambda x: f1(x) - f2(x), h, t,
+            theta = dekker(lambda x: f1(x) - f2(x), h, t,
                                abs_error, rel_error, False)
             r = f1(theta)
             if r < 0:
@@ -83,12 +91,12 @@ def dekpol(f1: Callable[[float], float], f2: Callable[[float], float],
         h = head + i * step
         t = h + step
         if (f1(h) + f2(h + math.pi)) * (f1(t) + f2(t + math.pi)) <= 0:
-            theta = dek.dekker(lambda x: f1(x) + f2(x + math.pi), h, t,
+            theta = dekker(lambda x: f1(x) + f2(x + math.pi), h, t,
                                abs_error, rel_error, False)
             if f1(theta) > 0:
                 inter.append((f1(theta), theta % (2 * math.pi)))
         if (f2(h) + f1(h + math.pi)) * (f2(t) + f1(t + math.pi)) <= 0:
-            theta = dek.dekker(lambda x: f2(x) + f1(x + math.pi), h, t,
+            theta = dekker(lambda x: f2(x) + f1(x + math.pi), h, t,
                                abs_error, rel_error, False)
             if f2(theta) > 0:
                 inter.append((f2(theta), theta % (2 * math.pi)))
@@ -114,7 +122,7 @@ def main():
     print('----------------------------------------------------------------')
     print('Test for the first homework:')
     print()
-    dek.dekker(func1, 0.1, 1, absl, rel)
+    dekker(func1, 0.1, 1, absl, rel)
     print()
     print("----------------------------------------------------------------")
 
@@ -123,7 +131,7 @@ def main():
     print()
     absl = 0.001
     rel = 0.0001
-    dek.dekker(func2, 90, 110, absl, rel)
+    dekker(func2, 90, 110, absl, rel)
     print()
     print("----------------------------------------------------------------")
 

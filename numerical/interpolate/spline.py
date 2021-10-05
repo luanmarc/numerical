@@ -6,4 +6,3 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
 Computacao III (CCM): EP 2
 Splines
 '''
-
