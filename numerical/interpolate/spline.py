@@ -130,6 +130,7 @@ class CompleteSpline(Spline):
         self.deriv: tuple[float, float] = deriv
         self.moments: list[float] = self.find_moments()
 
+
     def find_moments(self) -> list[float]:
         n_knots = len(self.knots)
         # Construct matrices
@@ -161,6 +162,7 @@ class CompleteSpline(Spline):
         moments = Tridiagonal.solve(coeff, res) # `coeff * moments = res`
         return moments.tolist()
 
+
     def get_moments(self) -> list[float]:
         '''Get the moments of the spline'''
         return self.moments
@@ -181,7 +183,84 @@ class CompleteSpline(Spline):
         return y0 + beta * diff + gamma * (diff ** 2) + delta * (diff ** 3)
 
 
-# TODO: class NotKnotSpline
+
+class NotKnotSpline(Spline):
+    '''Complete cubic interpolating spline'''
+
+    def __init__(self, knots: list[float], values: list[float]):
+        Spline.__init__(self, knots, values)
+        self.moments: list[float] = self.find_moments()
+
+
+    def find_moments(self) -> list[float]:
+        n_knots = len(self.knots) - 1
+        # Construct matrices
+        coeff = 2 * np.identity(n_knots, dtype = float)
+        res = np.zeros(n_knots, dtype = float)
+        for i in range(1, n_knots - 1):  # Sets the matrices
+            # Coefficient matrix: tridiagonal
+            if i == 1:
+                h_1 = self.interval_length(i - 1)
+                h0 = self.interval_length(i)
+                upper = h_1 / h0
+                coeff[i, i + 1] = 1 - upper
+                coeff[i, i] = 2 + upper
+            if i == (n_knots - 2):
+                h_1 = self.interval_length(i - 1)
+                h0 = self.interval_length(i)
+                upper = h_1 / h0
+                coeff[i, i] = 2 + upper
+                coeff[i, i - 1] = 1 - upper
+            else:
+                h_1 = self.interval_length(i - 1)
+                h0 = self.interval_length(i)
+                upper = h0 / (h0 + h_1)
+                coeff[i, i + 1] = upper 
+                coeff[i, i - 1] = 1 - upper
+
+            # Result matrix
+            if i < n_knots - 1:
+                diff0 = self.values[i] - self.values[i - 1]
+                diff1 = self.values[i + 1] - self.values[i]
+                res[i] = 6 / (h_1 + h0) * (diff1 / h0 - diff0 / h_1)
+
+        # First set of moments without m_0 and m_n
+        moments_0 = Tridiagonal.solve(coeff, res)
+
+        h1 = self.interval_length(0)
+        h2 = self.interval_length(1)
+        m_0 = ((h1 + h2) / h2) * moments_0[0] - (h1 / h2) * moments_0[1]
+        h_n = self.interval_length(len(self.knots) - 2)
+        h_n_1 = self.interval_length(len(self.knots) - 3)
+        m_n = ((h_n + h_n_1) / h_n_1) * moments_0[n_knots - 1] \
+                - (h_n / h_n_1) * moments_0[n_knots - 2]
+        moments = np.zeros(len(self.knots), dtype = float)
+        moments[0] = m_0
+        moments[len(self.knots) - 1] = m_n
+        for i in range(1, len(self.knots) - 1):
+            moments[i] = moments_0[i - 1]
+
+        return moments.tolist()
+
+
+    def get_moments(self) -> list[float]:
+        '''Get the moments of the spline'''
+        return self.moments
+
+
+    def value_at(self, x: float) -> float:
+        '''Returns the value of the spline function at `x`'''
+        # Data about the interval of `x`
+        i = self.which_interval(x)
+        y0, y1 = self.values[i], self.values[i + 1]
+        m0, m1 = self.moments[i], self.moments[i + 1]
+        h = self.interval_length(i)
+
+        diff = x - self.knots[i]
+        beta = (y1 - y0) / h - (2* m0 + m1) * h / 6
+        delta = (m1 - m0) / (6 * h)
+        gamma = m0 / 2
+        return y0 + beta * diff + gamma * (diff ** 2) + delta * (diff ** 3)
 
 
 def main():
