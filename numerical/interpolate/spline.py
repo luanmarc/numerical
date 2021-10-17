@@ -235,7 +235,7 @@ class PeridiodicSpline(Spline):
         diffn = self.values[-1] - self.values[-2]
         res[-1] = (6 / (h0 + hn)) * (diff1 / h0 - diffn / hn)
 
-        moments = Tridiagonal.solve(coeff, res).tolist()  # `coeff * moments = res`
+        moments = SquareMatrix.solve(coeff, res).tolist()  # `coeff * moments = res`
         moments.insert(0, moments[-1])  # Repeated moment
         return moments
 
