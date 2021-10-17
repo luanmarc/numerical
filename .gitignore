@@ -1,5 +1,7 @@
 # Python
 __pycache__/
+*.egg-info
+*.pdf
 
 ## Emacs backup files to be ignored:
 #*#
