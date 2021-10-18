@@ -109,19 +109,3 @@ def secant_dichotomy(f: Callable[[float], float], approx: float, ant: float,
     if min(approx, m) < s and s < max(approx, m):
         return s
     return m
-
-
-def main():
-    ''' Some tests for the Dekker method '''
-    st = input('Which function would you like to use? '
-               '(Use x as a variable, ex: x ** 2 - 3):\n')
-    f = lambda x: eval(st)
-    a = float(input('Head of the interval: '))
-    b = float(input('Tail of the interval: '))
-    abs_error = float(input('Absolute error: '))
-    rel_error = float(input('Relative error: '))
-    dekker(f, a, b, abs_error, rel_error)
-
-
-if __name__ == '__main__':
-    main()
