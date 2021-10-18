@@ -9,19 +9,23 @@ import numpy as np
 
 
 class SquareMatrix:
+    '''Methods for square matrices'''
+
     @classmethod
-    def gaussian_elim(cls, mat, vec):
-        '''General, in-place, gaussian elimination'''
+    def gaussian_elim(cls, mat, vec, lu_decomp: bool = False):
+        '''General, in-place, gaussian elimination.
+        If `lu_decomp` is set as `True`, the method will use the upper
+        triangular part of `mat` for U and the lower part for L'''
         if mat.shape[0] != mat.shape[1]:
             raise Exception('Matrix not square')
 
         def pivot_selection(mat, col: int) -> int:
             '''Partial pivot selection:
             Returns the row index of the pivot given a specific column.'''
-            pivot_row = 0 
+            pivot_row = 0
             for row in range(1, mat.shape[0]):
                 if abs(mat[row, col]) > abs(mat[pivot_row, col]):
-                    pivot_row = row 
+                    pivot_row = row
             if mat[pivot_row, col] == 0:
                 raise Exception('The matrix is singular!')
             return pivot_row
@@ -38,23 +42,26 @@ class SquareMatrix:
         # For each column, select the `pivot`, switch rows if need be. For each
         # row below the `pivot_row`, subtract element-wise the multiple `mult`
         # in order to make the pivot the only non-zero element in the column.
-        # Pivot selection is done only for the first diagonal element, otherwise
-        # we simply use the current diagonal. This is acceptable if `mat` is
-        # equilibrated.
+        # Pivot selection is done only for the first diagonal element,
+        # otherwise we simply use the current diagonal. This is acceptable if
+        # `mat` is equilibrated.
         for diag in range(mat.shape[1]):
-            if diag == 1:
+            if diag == 0:
                 pivot_row = pivot_selection(mat, diag)
                 pivot = mat[pivot_row, diag]
                 switch_rows(mat, diag, pivot_row)
             else:
                 pivot = mat[diag, diag]
 
-            for row in range(diag + 1, mat.shape[0]): 
+            for row in range(diag + 1, mat.shape[0]):
                 mult = mat[row, diag] / pivot
                 vec[row] -= mult * vec[diag]
-                for c in range(diag, mat.shape[1]):
-                    mat[row, c] -= mult * mat[diag, c]
-
+                for col in range(diag, mat.shape[1]):
+                    mat[row, col] -= mult * mat[diag, col]
+                # If LU decomposition is wanted, store the multipliers in the
+                # lower matrix (this creates the lower tridiagonal matrix)
+                if lu_decomp:
+                    mat[row, diag] = mult
 
     @classmethod
     def back_substitution(cls, mat, vec):
@@ -64,7 +71,6 @@ class SquareMatrix:
         for i in range(len(vec) - 2, -1, -1):
             sol[i] = (vec[i] - mat[i, i + 1] * sol[i + 1]) / mat[i, i]
         return sol
-
 
     @classmethod
     def solve(cls, coeff, res):
@@ -76,12 +82,11 @@ class SquareMatrix:
         return cls.back_substitution(coeff, res)
 
 
-
 class Tridiagonal(SquareMatrix):
     '''A class for methods concerning tridiagonal matrices'''
 
     @classmethod
-    def gaussian_elim(cls, mat, vec):
+    def tri_gaussian_elim(cls, mat, vec):
         '''In-place gaussian elimination algorithm.'''
         if mat.shape[1] != len(vec):
             raise Exception('Lengths do not match')
