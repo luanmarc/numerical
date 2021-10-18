@@ -1,26 +1,33 @@
-'''
+"""
 Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
          Victor Manuel Dias Saliba     (nUSP: 11807702)
          Luan Marc                     (nUSP: 11809090)
 
 Computacao III (CCM): EP 1
 Dekker method for finding roots of a given function.
-'''
+"""
 from typing import Callable
 
 
-def dekker(f: Callable[[float], float], a: float, b: float, abs_error: float,
-           rel_error: float, verbose: bool = True) -> float:
-    '''
+def dekker(
+    f: Callable[[float], float],
+    a: float,
+    b: float,
+    abs_error: float,
+    rel_error: float,
+    verbose: bool = True,
+) -> float:
+    """
     Dekker method for finding approximations of zeros of a given function
     f in the interval [a, b] with an absolute error and relative error of
     abs_error and rel_error, respectively.
     You can toggle the verbose if you don't wish any printing.
-    '''
+    """
     if f(a) * f(b) > 0:
-        e = ('The function must change sign '
-             'in the interval [{}, {}]'.format(a, b))
-        raise Exception(e)
+        raise Exception(
+            "The function must change sign in the interval"
+            "[{}, {}]".format(a, b)
+        )
 
     ant = a                    # Antipode point
     approx = b                 # Current approximation
@@ -48,8 +55,9 @@ def dekker(f: Callable[[float], float], a: float, b: float, abs_error: float,
         if do_dichotomy:
             next_approx = (approx + ant) / 2
         else:
-            next_approx = secant_dichotomy(f, approx, ant, last_approx,
-                                           abs_error, rel_error)
+            next_approx = secant_dichotomy(
+                f, approx, ant, last_approx, abs_error, rel_error
+            )
 
         # Calculates the next antipode
         next_ant = approx
@@ -72,17 +80,20 @@ def dekker(f: Callable[[float], float], a: float, b: float, abs_error: float,
         iteration += 1
 
     if verbose:
-        print('{} is the approximation, obtained '
-              'in {} iterations'.format(approx, iteration))
+        print(
+            "{} is the approximation, obtained "
+            "in {} iterations".format(approx, iteration)
+        )
     return approx
 
 
-def is_approx(approx: float, ant: float,
-              abs_error: float, rel_error: float) -> bool:
-    '''
+def is_approx(
+    approx: float, ant: float, abs_error: float, rel_error: float
+) -> bool:
+    """
     True if the approximation satisfies the wanted error conditions, false
     otherwise.
-    '''
+    """
     tol = max(abs_error, abs(approx) * rel_error)
     abs_diff = abs(approx - ant)
     if abs_diff / 2 < tol:
@@ -90,17 +101,24 @@ def is_approx(approx: float, ant: float,
     return False
 
 
-def secant_dichotomy(f: Callable[[float], float], approx: float, ant: float,
-                     last_approx: float, abs_error: float,
-                     rel_error: float) -> float:
-    '''
+def secant_dichotomy(
+    f: Callable[[float], float],
+    approx: float,
+    ant: float,
+    last_approx: float,
+    abs_error: float,
+    rel_error: float,
+) -> float:
+    """
     Implements a mix of the secant and dichotomy methods, returning
     the next approximation for the Dekker method.
-    '''
+    """
     m = (approx + ant) / 2
     s = m
     if f(approx) != f(last_approx):
-        delta = f(approx) * (approx - last_approx)/(f(approx) - f(last_approx))
+        delta = (
+            f(approx) * (approx - last_approx) / (f(approx) - f(last_approx))
+        )
         s = approx - delta
 
     tol = max(abs_error, abs(approx) * rel_error)

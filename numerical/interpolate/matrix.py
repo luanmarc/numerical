@@ -1,37 +1,37 @@
-'''
+"""
 Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
          Victor Manuel Dias Saliba     (nUSP: 11807702)
          Luan Marc                     (nUSP: 11809090)
 
 Computacao III (CCM): EP 2 Cubic interpolating splines
-'''
+"""
 import numpy as np
 
 
 class SquareMatrix:
-    '''Methods for square matrices'''
+    """Methods for square matrices"""
 
     @classmethod
     def gaussian_elim(cls, mat, vec, lu_decomp: bool = False):
-        '''General, in-place, gaussian elimination.
+        """General, in-place, gaussian elimination.
         If `lu_decomp` is set as `True`, the method will use the upper
-        triangular part of `mat` for U and the lower part for L'''
+        triangular part of `mat` for U and the lower part for L"""
         if mat.shape[0] != mat.shape[1]:
-            raise Exception('Matrix not square')
+            raise Exception("Matrix not square")
 
         def pivot_selection(mat, col: int) -> int:
-            '''Partial pivot selection:
-            Returns the row index of the pivot given a specific column.'''
+            """Partial pivot selection:
+            Returns the row index of the pivot given a specific column."""
             pivot_row = 0
             for row in range(1, mat.shape[0]):
                 if abs(mat[row, col]) > abs(mat[pivot_row, col]):
                     pivot_row = row
             if mat[pivot_row, col] == 0:
-                raise Exception('The matrix is singular!')
+                raise Exception("The matrix is singular!")
             return pivot_row
 
         def switch_rows(mat, row0, row1):
-            '''In-place switch rows: `row0` and `row1`'''
+            """In-place switch rows: `row0` and `row1`"""
             if row0 == row1:
                 return
             for col in range(mat.shape[1]):
@@ -65,7 +65,7 @@ class SquareMatrix:
 
     @classmethod
     def back_substitution(cls, mat, vec):
-        '''Back substitution method. Assumes `mat` is upper triangular.'''
+        """Back substitution method. Assumes `mat` is upper triangular."""
         sol = np.zeros(len(vec))
         sol[-1] = vec[-1] / mat[-1, -1]
         for i in range(len(vec) - 2, -1, -1):
@@ -74,22 +74,22 @@ class SquareMatrix:
 
     @classmethod
     def solve(cls, coeff, res):
-        '''Solves the system `coeff * X = res` for `X`.
+        """Solves the system `coeff * X = res` for `X`.
         The algorithm is stable for diagonal dominant `coeff` matrices.
-        '''
+        """
         # Triangularization of `coeff` and `res`
         cls.gaussian_elim(coeff, res)
         return cls.back_substitution(coeff, res)
 
 
 class Tridiagonal(SquareMatrix):
-    '''A class for methods concerning tridiagonal matrices'''
+    """A class for methods concerning tridiagonal matrices"""
 
     @classmethod
     def tri_gaussian_elim(cls, mat, vec):
-        '''In-place gaussian elimination algorithm.'''
+        """In-place gaussian elimination algorithm."""
         if mat.shape[1] != len(vec):
-            raise Exception('Lengths do not match')
+            raise Exception("Lengths do not match")
 
         for i in range(1, len(vec)):
             mult = mat[i, i - 1] / mat[i - 1, i - 1]
