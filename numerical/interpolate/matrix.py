@@ -12,14 +12,16 @@ class SquareMatrix:
     """Methods for square matrices"""
 
     @classmethod
-    def gaussian_elim(cls, mat, vec, lu_decomp: bool = False):
+    def gaussian_elim(
+        cls, mat: np.ndarray, vec: np.ndarray, lu_decomp: bool = False
+    ) -> None:
         """General, in-place, gaussian elimination.
         If `lu_decomp` is set as `True`, the method will use the upper
         triangular part of `mat` for U and the lower part for L"""
         if mat.shape[0] != mat.shape[1]:
             raise Exception("Matrix not square")
 
-        def pivot_selection(mat, col: int) -> int:
+        def pivot_selection(mat: np.ndarray, col: int) -> int:
             """Partial pivot selection:
             Returns the row index of the pivot given a specific column."""
             pivot_row = 0
@@ -30,7 +32,7 @@ class SquareMatrix:
                 raise Exception("The matrix is singular!")
             return pivot_row
 
-        def switch_rows(mat, row0, row1):
+        def switch_rows(mat: np.ndarray, row0: int, row1: int) -> None:
             """In-place switch rows: `row0` and `row1`"""
             if row0 == row1:
                 return
@@ -64,7 +66,7 @@ class SquareMatrix:
                     mat[row, diag] = mult
 
     @classmethod
-    def back_substitution(cls, mat, vec):
+    def back_substitution(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
         """Back substitution method. Assumes `mat` is upper triangular."""
         sol = np.zeros(len(vec))
         sol[-1] = vec[-1] / mat[-1, -1]
@@ -73,20 +75,22 @@ class SquareMatrix:
         return sol
 
     @classmethod
-    def solve(cls, coeff, res):
-        """Solves the system `coeff * X = res` for `X`.
-        The algorithm is stable for diagonal dominant `coeff` matrices.
+    def solve(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
+        """Solves the system `mat * X = vec` for `X`.
+        The algorithm is stable for diagonal dominant `mat` matrices.
         """
-        # Triangularization of `coeff` and `res`
-        cls.gaussian_elim(coeff, res)
-        return cls.back_substitution(coeff, res)
+        # Triangularization of `mat` and `vec`
+        cls.gaussian_elim(mat, vec)
+        return cls.back_substitution(mat, vec)
 
 
 class Tridiagonal(SquareMatrix):
     """A class for methods concerning tridiagonal matrices"""
 
     @classmethod
-    def gaussian_elim(cls, mat, vec, lu_decomp: bool = False):
+    def gaussian_elim(
+        cls, mat: np.ndarray, vec: np.ndarray, lu_decomp: bool = False
+    ) -> None:
         """In-place gaussian elimination algorithm."""
         if mat.shape[1] != len(vec):
             raise Exception("Lengths do not match")
@@ -107,9 +111,10 @@ class Periodic(SquareMatrix):
     """A class for methods concerning periodic matrices"""
 
     @classmethod
-    def solve(cls, mat, vec):
+    def solve(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
         """In-place solve a periodic linear system and returns the solution"""
-        def inner_prod(arr0, arr1) -> float:
+
+        def inner_prod(arr0: np.ndarray, arr1: np.ndarray) -> float:
             """Dot product `arr0` * `arr1`"""
             return sum(x * y for x, y in zip(arr0, arr1))
 
