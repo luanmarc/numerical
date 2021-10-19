@@ -5,14 +5,14 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
 
 Computacao III (CCM): EP 2 Cubic interpolating splines
 """
-from numerical.interpolate.matrix import Tridiagonal, SquareMatrix
+from numerical.interpolate.matrix import Tridiagonal, Periodic
 import numpy as np
 
 
 class Spline:
-    """Cubic interpolating spline\n
-    Real valued twice continuously differentiable function. For each interval of
-    consequent knots the spline coincides with a polynomial of degree at most 3.
+    """Cubic interpolating spline. Real valued twice continuously
+    differentiable function. For each interval of consequent knots the spline
+    coincides with a polynomial of degree at most 3.
     """
 
     def __init__(self, knots: list[float], values: list[float]):
@@ -43,7 +43,7 @@ class Spline:
 
         index = len(self.knots) - 2
         for i in range(len(self.knots) - 3):
-            if self.knots[i] <= x and x <= self.knots[i + 1]:
+            if self.knots[i] <= x <= self.knots[i + 1]:
                 index = i
                 break
         return index
@@ -65,6 +65,7 @@ class NaturalSpline(Spline):
         self.moments: list[float] = self.find_moments()
 
     def find_moments(self) -> list[float]:
+        """Finds moments of the spline at the given knots"""
         # Construct matrices
         coeff = 2 * np.identity(len(self.knots), dtype=float)
         res = np.zeros(len(self.knots), dtype=float)
@@ -126,6 +127,7 @@ class CompleteSpline(Spline):
         self.moments: list[float] = self.find_moments()
 
     def find_moments(self) -> list[float]:
+        """Finds moments of the spline at the given knots"""
         # Construct matrices
         coeff = 2 * np.identity(len(self.knots), dtype=float)
         res = np.zeros(len(self.knots), dtype=float)
@@ -193,8 +195,7 @@ class PeridiodicSpline(Spline):
         res = np.zeros(len(self.knots) - 1, dtype=float)
         for i in range(2, len(self.knots) - 1):
             # Since the range starts at 2, we subtract 1 from the actual matrix
-            # coordinates in order to maintain the algorithm concise
-
+            # coordinates in order to maintain the algorithm concise.
             # Coefficient matrix:
             h_1 = self.interval_length(i - 1)
             h0 = self.interval_length(i)
@@ -219,9 +220,8 @@ class PeridiodicSpline(Spline):
         diffn = self.values[-1] - self.values[-2]
         res[-1] = (6 / (h0 + hn)) * (diff1 / h0 - diffn / hn)
 
-        moments = SquareMatrix.solve(coeff, res).tolist()
-        moments.insert(0, moments[-1])  # Repeated moment
-        return moments
+        moments = Periodic.solve(coeff, res)
+        return moments.tolist()
 
     def get_moments(self) -> list[float]:
         """Get the moments of the spline"""

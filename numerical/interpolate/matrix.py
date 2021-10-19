@@ -86,7 +86,7 @@ class Tridiagonal(SquareMatrix):
     """A class for methods concerning tridiagonal matrices"""
 
     @classmethod
-    def tri_gaussian_elim(cls, mat, vec):
+    def gaussian_elim(cls, mat, vec, lu_decomp: bool = False):
         """In-place gaussian elimination algorithm."""
         if mat.shape[1] != len(vec):
             raise Exception("Lengths do not match")
@@ -94,5 +94,31 @@ class Tridiagonal(SquareMatrix):
         for i in range(1, len(vec)):
             mult = mat[i, i - 1] / mat[i - 1, i - 1]
             mat[i, i] -= mult * mat[i - 1, i]
-            mat[i, i - 1] = 0
+            # If LU decomposition is wanted, store the multipliers in the
+            # lower matrix (this creates the lower tridiagonal matrix)
+            if lu_decomp:
+                mat[i, i - 1] = mult
+            else:
+                mat[i, i - 1] = 0
             vec[i] -= mult * vec[i - 1]
+
+
+class Periodic(SquareMatrix):
+    """A class for methods concerning periodic matrices"""
+
+    @classmethod
+    def solve(cls, mat, vec):
+        """In-place solve a periodic linear system and returns the solution"""
+        def inner_prod(arr0, arr1) -> float:
+            """Dot product `arr0` * `arr1`"""
+            return sum(x * y for x, y in zip(arr0, arr1))
+
+        y_sol = SquareMatrix.solve(mat[:-1, :-1], mat[:-1, -1])
+        z_sol = SquareMatrix.solve(mat[:-1, :-1], vec[:-1])
+
+        last = (vec[-1] - inner_prod(mat[-1, :-1], z_sol)) / (
+            mat[-1, -1] - inner_prod(mat[-1, :-1], y_sol)
+        )
+        sol0 = np.zeros(len(vec))
+        sol0 = z_sol - last * y_sol
+        return np.insert(sol0, [0, len(sol0)], last)

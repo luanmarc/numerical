@@ -105,10 +105,10 @@ def ep_test(cls, func, deriv=None, verbose=True):
 
 def main():
     """Tests"""
-    def func(x):
+    def func(x: float) -> float:
         return 1 / (2 - x)
 
-    def func_derivative(x):
+    def func_derivative(x: float) -> float:
         return 1 / (2 - x) ** 2
 
     print(">>> Error tests:\n")
@@ -119,7 +119,7 @@ def main():
     print("\n\n>>> Curves test:\n")
     coord1 = [25, 19, 13, 9, 5, 2.2, 1, 3, 8, 13, 18, 25]
     coord2 = [5, 7.5, 9.1, 9.4, 9, 7.5, 5, 2.1, 2, 3.5, 4.5, 5]
-    curve = Curves(coord1, coord2, 3000)
+    curve = Curves(coord1, coord2, 400)
     points = curve.get_points()
     acc = 0
     for point in points:
