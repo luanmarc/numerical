@@ -63,6 +63,10 @@ class Curves:
     def plot_curve(self):
         """Plots the curve"""
         plt.plot(*zip(*self.points))
+        plt.title("Cubic spline interpolation")
+        plt.xlabel("x axis")
+        plt.ylabel("y axis")
+
         plt.show()
 
 
