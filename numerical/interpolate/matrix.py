@@ -67,7 +67,7 @@ class SquareMatrix:
 
     @classmethod
     def back_substitution(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
-        """Back substitution method. Assumes `mat` is upper triangular."""
+        """Back substitution method."""
         sol = np.zeros(len(vec))
         sol[-1] = vec[-1] / mat[-1, -1]
         for i in range(len(vec) - 2, -1, -1):
@@ -120,12 +120,28 @@ class Periodic(SquareMatrix):
             """Dot product `arr0` * `arr1`"""
             return sum(x * y for x, y in zip(arr0, arr1))
 
-        y_sol = SquareMatrix.solve(mat[:-1, :-1], mat[:-1, -1])
-        z_sol = SquareMatrix.solve(mat[:-1, :-1], vec[:-1])
+        # Before in-place operations, store needed information
+        v_tilde = np.copy(mat[-1, :-1])
 
-        last = (vec[-1] - inner_prod(mat[-1, :-1], z_sol)) / (
-            mat[-1, -1] - inner_prod(mat[-1, :-1], y_sol)
+        # Solve for the y solution and find the multipliers
+        SquareMatrix.gaussian_elim(mat[:-1, :-1], mat[:-1, -1], True)
+        y_sol = SquareMatrix.back_substitution(mat[:-1, :-1], mat[:-1, -1])
+
+        # Use the multipliers on `z_vec`
+        z_vec = vec[:-1]
+        for i in range(1, mat.shape[1] - 1):
+            z_vec[i] -= z_vec[i - 1] * mat[i, i - 1]
+
+        # Now that `vec` is corrected, we can simply find the z solution by
+        # doing the back substitution
+        z_sol = SquareMatrix.back_substitution(mat[:-1, :-1], z_vec)
+
+        last = (vec[-1] - inner_prod(v_tilde, z_sol)) / (
+        mat[-1, -1] - inner_prod(v_tilde, y_sol)
         )
+
+        # `sol0` contains the inner solutions, insert the first and last (equal)
+        # elements (`last`) when returning
         sol0 = np.zeros(len(vec))
         sol0 = z_sol - last * y_sol
         return np.insert(sol0, [0, len(sol0)], last)
