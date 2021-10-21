@@ -91,7 +91,9 @@ class Tridiagonal(SquareMatrix):
     def gaussian_elim(
         cls, mat: np.ndarray, vec: np.ndarray, lu_decomp: bool = False
     ) -> None:
-        """In-place gaussian elimination algorithm."""
+        """In-place gaussian elimination algorithm.
+        If `lu_decomp` is set as `True`, the method will use the upper
+        triangular part of `mat` for U and the lower part for L"""
         if mat.shape[1] != len(vec):
             raise Exception("Lengths do not match")
 
