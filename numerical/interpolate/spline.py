@@ -52,6 +52,8 @@ class Spline:
         """Returns the length of the `index` interval.\n
         Note that `index` should be an int between `0` and `len(knots) - 2`
         """
+        if not 0 <= index <= len(self.knots) - 2:
+            raise Exception("Index out of bounds")
         return self.knots[index + 1] - self.knots[index]
 
 
