@@ -6,7 +6,8 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
 Tests: module numerical.interpolate.matrix
 """
 import numpy as np
-from numerical.interpolate.matrix import Tridiagonal, SquareMatrix
+from numerical.matrix.linear_sys import Tridiagonal, SquareMatrix
+from numerical.matrix.factorization import Qr
 
 
 def decomposition(mat, vec):
@@ -24,8 +25,7 @@ def decomposition(mat, vec):
     print("product = lower * upper =\n{}\n".format(prod))
 
 
-def main():
-    """Tests"""
+def linear_sys_test():
     print(">>> Testing tridiagonal gaussian elimination:\n")
     coeff = np.array([
             [4.0, 1, 0, 0, 0, 0],
@@ -68,6 +68,30 @@ def main():
     ])
     t = np.array([5.0, 7.0, 8.0, 8, 10])
     decomposition(y, t)
+
+
+def linear_space_test(verbose=True):
+    for row, col in [(6, 4), (4, 4), (4, 6)]:
+        print("---> Case shape = ({}, {})".format(row, col))
+
+        mat = np.random.rand(row, col)
+        if verbose:
+            print("Given the random matrix =\n", mat)
+
+        q, r = Qr.factorization(mat)
+        res = np.matmul(q, r)
+        if verbose:
+            print("\n\n\n>>>our test\n")
+            print("we get q =\n{}\nand r =\n{}".format(q, r))
+            print("the product of q and r is\n", res)
+
+        print("Checking if the answer is correct...")
+        np.testing.assert_allclose(res, mat, 0.000001, 0.000001)
+
+
+def main():
+    """Tests"""
+    linear_space_test(False)
 
 
 if __name__ == "__main__":

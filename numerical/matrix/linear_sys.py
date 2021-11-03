@@ -5,6 +5,7 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
 
 Computacao III (CCM): EP 2 Cubic interpolating splines
 """
+from numerical.matrix.linear_space import RealSpace
 import numpy as np
 
 
@@ -115,11 +116,6 @@ class Periodic(SquareMatrix):
     @classmethod
     def solve(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
         """In-place solve a periodic linear system and returns the solution"""
-
-        def inner_prod(arr0: np.ndarray, arr1: np.ndarray) -> float:
-            """Dot product `arr0` * `arr1`"""
-            return sum(x * y for x, y in zip(arr0, arr1))
-
         # Before in-place operations, store needed information
         v_tilde = np.copy(mat[-1, :-1])
 
@@ -136,8 +132,8 @@ class Periodic(SquareMatrix):
         # doing the back substitution
         z_sol = SquareMatrix.back_substitution(mat[:-1, :-1], z_vec)
 
-        last = (vec[-1] - inner_prod(v_tilde, z_sol)) / (
-        mat[-1, -1] - inner_prod(v_tilde, y_sol)
+        last = (vec[-1] - RealSpace.inner_product(v_tilde, z_sol)) / (
+            mat[-1, -1] - RealSpace.inner_product(v_tilde, y_sol)
         )
 
         # `sol0` contains the inner solutions, insert the first and last (equal)

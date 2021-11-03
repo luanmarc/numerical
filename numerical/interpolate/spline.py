@@ -5,7 +5,7 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
 
 Computacao III (CCM): EP 2 Cubic interpolating splines
 """
-from numerical.interpolate.matrix import Tridiagonal, Periodic
+from numerical.matrix.linear_sys import Tridiagonal, Periodic
 import numpy as np
 
 
