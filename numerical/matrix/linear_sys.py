@@ -157,7 +157,7 @@ class Qr:
         m, n = mat.shape
         mn = min(m, n)
         q = np.column_stack([mat[:, j] for j in range(mn)]).reshape((m, mn))
-        r = np.zeros((mn, n)) # TODO: correct this shape
+        r = np.zeros((mn, n))
 
         for j in range(mn):
             for i in range(j):
