@@ -6,8 +6,7 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
 Tests: module numerical.interpolate.matrix
 """
 import numpy as np
-from numerical.matrix.linear_sys import Tridiagonal, SquareMatrix
-from numerical.matrix.factorization import Qr
+from numerical.matrix.linear_sys import Tridiagonal, SquareMatrix, Qr
 
 
 def decomposition(mat, vec):
@@ -81,7 +80,7 @@ def linear_space_test(verbose=True):
         q, r = Qr.factorization(mat)
         res = np.matmul(q, r)
         if verbose:
-            print("\n\n\n>>>our test\n")
+            print("\n\n\n>>> our test\n")
             print("we get q =\n{}\nand r =\n{}".format(q, r))
             print("the product of q and r is\n", res)
 

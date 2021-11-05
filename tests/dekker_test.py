@@ -64,7 +64,7 @@ def dekpol(
     tail: float,
     abs_error: float,
     rel_error: float,
-    subint: int = 400,
+    subint: int = 400
 ) -> None:
     """
     Finds intersections between two given curves f1 and f2 in the interval
@@ -121,9 +121,7 @@ def dekpol(
 
 def print_inter(f1, f2, *args):
     """Function for printing intersections"""
-    nf1 = f1.__name__
-    nf2 = f2.__name__
-    print("Intersections between {} and {}".format(nf1, nf2))
+    print(f"Intersections between {f1.__name__} and {f2.__name__}")
     print()
     dekpol(f1, f2, *args)
     print()
@@ -133,24 +131,17 @@ def main():
     """Solutions to the given homework problems"""
     absl = 0.00001  # Absolute error
     rel = 0.001  # Relative error
-    print("----------------------------------------------------------------")
-    print("Test for the first homework:")
-    print()
-    dekker(func1, 0.1, 1, absl, rel)
-    print()
-    print("----------------------------------------------------------------")
+    template = f"{' Test for the {} homework ':-^79}\n"
 
-    print("----------------------------------------------------------------")
-    print("Test for the second homework:")
-    print()
+    print(template.format("first"))
+    dekker(func1, 0.1, 1, absl, rel)
+
+    print("\n\n" + template.format("second"))
     absl = 0.001
     rel = 0.0001
     dekker(func2, 90, 110, absl, rel)
-    print()
-    print("----------------------------------------------------------------")
 
-    print("----------------------------------------------------------------")
-    print("Tests for the third homework:")
+    print("\n\n" + template.format("third"))
     absl = 0.00001
     rel = 0.00001
     print_inter(butterfly, card, 0, 2 * math.pi, absl, rel)
@@ -159,7 +150,6 @@ def main():
     print_inter(card, curly, 0, 4 * math.pi, absl, rel)
     print_inter(clover, curly, 0, 4 * math.pi, absl, rel)
     print_inter(card, clover, 0, 2 * math.pi, absl, rel)
-    print("----------------------------------------------------------------")
 
 
 if __name__ == "__main__":

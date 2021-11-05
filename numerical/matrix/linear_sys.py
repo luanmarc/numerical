@@ -3,7 +3,9 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
          Victor Manuel Dias Saliba     (nUSP: 11807702)
          Luan Marc Suquet Camargo      (nUSP: 11809090)
 
-Computacao III (CCM): EP 2 Cubic interpolating splines
+Computacao III (CCM):
+EP 2 Cubic interpolating splines: SquareMatrix, Tridiagonal, Periodic
+EP 3 QR Factorization: Qr
 """
 from numerical.matrix.linear_space import RealSpace
 import numpy as np
@@ -141,3 +143,57 @@ class Periodic(SquareMatrix):
         sol0 = np.zeros(len(vec))
         sol0 = z_sol - last * y_sol
         return np.insert(sol0, [0, len(sol0)], last)
+
+
+class Qr:
+    """
+    The goal is to solve the system A x = b where A is an m by n matrix. If A
+    has linearly independent columns, the solution is unique.
+    """
+
+    @classmethod
+    def factorization(cls, mat: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """QR factorization algorithm"""
+        m, n = mat.shape
+        mn = min(m, n)
+        q = np.column_stack([mat[:, j] for j in range(mn)]).reshape((m, mn))
+        r = np.zeros((mn, n)) # TODO: correct this shape
+
+        for j in range(mn):
+            for i in range(j):
+                x = RealSpace.inner_product(q[:, i], mat[:, j])
+                q[:, j] -= x * q[:, i]
+                r[i, j] = x
+            norm = RealSpace.norm(q[:, j])
+            if norm == 0:
+                raise Exception("The matrix contains a set of LD columns")
+            q[:, j] /= norm
+            r[j, j] = RealSpace.inner_product(q[:, j], mat[:, j])
+
+        # remaining columns for the case m < n
+        if m < n:
+            for j in range(mn, n):
+                for i in range(j):
+                    if i < r.shape[0]:
+                        r[i, j] = RealSpace.inner_product(q[:, i], mat[:, j])
+                    else:
+                        break
+
+        return q, r
+
+    @classmethod
+    def solve(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
+        """Solve the linear system `mat` * `sol` = `vec`"""
+        q, r = cls.factorization(mat)
+        m, n = mat.shape
+        if m < n:
+            raise Exception("The system has no solution")
+
+        # solve the system `r` * `sol` = `z`
+        # `r` is a triangular square matrix of order `n`
+        z = np.zeros(n)
+        b = np.copy(vec)
+        for i in range(n):
+            z[i] = RealSpace.inner_product(q[:, i], b)
+            b -= z[i] * q[:, i]
+        return SquareMatrix.back_substitution(r, z)
