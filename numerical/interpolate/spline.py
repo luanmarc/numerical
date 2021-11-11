@@ -168,29 +168,16 @@ class CompleteSpline(Spline):
     def value_at(self, x: float) -> float:
         """Returns the value of the spline function at `x`"""
         # Data about the interval of `x`
-        # i = self.which_interval(x)
-        # y0, y1 = self.values[i], self.values[i + 1]
-        # m0, m1 = self.moments[i], self.moments[i + 1]
-        # h = self.interval_length(i)
-
-        # diff = x - self.knots[i]
-        # beta = (y1 - y0) / h - (2 * m0 + m1) * h / 6
-        # delta = (m1 - m0) / (6 * h)
-        # gamma = m0 / 2
-        # return y0 + beta * diff + gamma * (diff ** 2) + delta * (diff ** 3)
-
         i = self.which_interval(x)
+        y0, y1 = self.values[i], self.values[i + 1]
+        m0, m1 = self.moments[i], self.moments[i + 1]
         h = self.interval_length(i)
-        a = (self.knots[i + 1] - x) / h
-        b = 1 - a
 
-        return (
-            a * self.values[i] + b * self.values[i + 1]
-            + (h ** 2) / 6 * (
-                (a ** 3 - a) * self.moments[i]
-                + (b ** 3 - b) * self.moments[i + 1]
-            )
-        )
+        diff = x - self.knots[i]
+        beta = (y1 - y0) / h - (2 * m0 + m1) * h / 6
+        delta = (m1 - m0) / (6 * h)
+        gamma = m0 / 2
+        return y0 + beta * diff + gamma * (diff ** 2) + delta * (diff ** 3)
 
 
 class PeriodicSpline(Spline):
