@@ -11,8 +11,9 @@ from numerical.interpolate.spline import (
     NaturalSpline,
     CompleteSpline,
     NotKnotSpline,
-    PeridiodicSpline,
+    PeriodicSpline,
 )
+from scipy.interpolate import CubicSpline, CubicHermiteSpline
 
 
 class Curves:
@@ -24,8 +25,8 @@ class Curves:
         self.coord1 = coord1
         self.coord2 = coord2
         self.param = [self.calc_param(i) for i in range(len(coord1))]
-        self.spline1 = PeridiodicSpline(self.param, coord1)
-        self.spline2 = PeridiodicSpline(self.param, coord2)
+        self.spline1 = PeriodicSpline(self.param, coord1)
+        self.spline2 = PeriodicSpline(self.param, coord2)
         self.points = self.calc_points(_range)
 
     def calc_param(self, index: int) -> float:
@@ -104,7 +105,70 @@ def ep_test(cls, func, deriv=None, verbose=True):
 
         print(
             "The error for the {} of {} for {} knots is "
-            "{}\n".format(cls.__name__, func.__name__, n, error)
+            "{:e}\n\n".format(cls.__name__, func.__name__, n, error)
+        )
+
+
+def scipy_plot(x, y, n):
+    def calc_param(x, y, index):
+        if index == 0:
+            return 0
+        return calc_param(x, y, index - 1) + math.sqrt(
+            (x[index] - x[index - 1]) ** 2
+            + (y[index] - y[index - 1]) ** 2
+        )
+
+    param = [calc_param(x, y, i) for i in range(len(x))]
+
+    spline_x = CubicSpline(param, x, bc_type="periodic")
+    spline_y = CubicSpline(param, y, bc_type="periodic")
+
+    interval = []
+    for i in range(n):
+        epsilon = i / n
+        interval.append((1 - epsilon) * param[0] + param[-1] * epsilon)
+
+    xs = spline_x(interval)[:]
+    ys = spline_y(interval)[:]
+    plt.plot(xs, ys)
+    plt.show()
+
+
+def scipy_test(name: str, func, deriv=None, verbose=True):
+    for n in [10, 20, 30, 40, 80, 160]:
+        # Spline construction
+        knots = [i / n for i in range(n)]
+        values = [func(k) for k in knots]
+
+        spline = None
+        if name == "complete":
+            # The complete spline requires derivative values
+            derivatives = [deriv(k) for k in knots]
+            spline = CubicHermiteSpline(knots, values, derivatives)
+        else:
+            spline = CubicSpline(x=knots, y=values, bc_type=name)
+
+        if verbose:
+            print(
+                "-> {} constructed for {} for {} "
+                "knots...".format(name, func.__name__, n)
+            )
+
+        # Error estimate
+        error = 0
+        _range = 1000
+        points = [i / _range for i in range(1000)]
+        spline_vec = spline(points)
+        for i in range(len(points)):
+            if points[i] <= knots[-1]:
+                oscillation = abs(func(points[i]) - spline_vec[i])
+                error = max(error, oscillation)
+            else:
+                break
+
+        print(
+            "The error for the {} of {} for {} knots is "
+            "{:e}\n\n".format(name, func.__name__, n, error)
         )
 
 
@@ -117,9 +181,28 @@ def main():
         return 1 / (2 - x) ** 2
 
     print(">>> Error tests:\n")
+
+    print("NATURAL SPLINE:\n")
     ep_test(NaturalSpline, func)
+
+    print("scipy NATURAL SPLINE:\n")
+    scipy_test("natural", func)
+
+    print("-" * 80)
+
+    print("\n\nCOMPLETE SPLINE:\n")
     ep_test(CompleteSpline, func, func_derivative)
+
+    print("\nscipy COMPLETE SPLINE:\n")
+    scipy_test("complete", func, func_derivative)
+
+    print("-" * 80)
+
+    print("\n\nNOT A KNOT\n")
     ep_test(NotKnotSpline, func)
+
+    print("\nscipy NOT A KNOT\n")
+    scipy_test("not-a-knot", func)
 
     print("\n\n>>> Curves test:\n")
     coord1 = [25, 19, 13, 9, 5, 2.2, 1, 3, 8, 13, 18, 25]
@@ -132,6 +215,8 @@ def main():
         acc += 1
     print("Plotting...")
     curve.plot_curve()
+
+    scipy_plot(coord1, coord2, 400)
 
 
 if __name__ == "__main__":
