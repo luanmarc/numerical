@@ -81,7 +81,7 @@ def ep_test(cls, func, deriv=None, verbose=True):
         spline = None
         if cls.__name__ == "CompleteSpline":
             # The complete spline requires derivative values
-            derivatives = [deriv(k) for k in knots]
+            derivatives = (deriv(knots[0]), deriv(knots[-1]))
             spline = cls(knots, values, derivatives)
         else:
             spline = cls(knots, values)
@@ -205,8 +205,8 @@ def main():
     scipy_test("not-a-knot", func)
 
     print("\n\n>>> Curves test:\n")
-    coord1 = [25, 19, 13, 9, 5, 2.2, 1, 3, 8, 13, 18, 25]
-    coord2 = [5, 7.5, 9.1, 9.4, 9, 7.5, 5, 2.1, 2, 3.5, 4.5, 5]
+    coord1 = [25.0, 19.0, 13.0, 9.0, 5.0, 2.2, 1.0, 3.0, 8.0, 13.0, 18.0, 25.0]
+    coord2 = [5.0, 7.5, 9.1, 9.4, 9.0, 7.5, 5.0, 2.1, 2.0, 3.5, 4.5, 5.0]
     curve = Curves(coord1, coord2, 400)
     points = curve.get_points()
     acc = 0
