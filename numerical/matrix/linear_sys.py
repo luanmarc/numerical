@@ -71,10 +71,18 @@ class SquareMatrix:
     @classmethod
     def back_substitution(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
         """Back substitution method."""
-        sol = np.zeros(len(vec))
+        if mat.shape[0] != mat.shape[1]:
+            raise Exception("Matrix not square")
+        n = len(vec)
+        sol = np.zeros(n)
         sol[-1] = vec[-1] / mat[-1, -1]
-        for i in range(len(vec) - 2, -1, -1):
-            sol[i] = (vec[i] - mat[i, i + 1] * sol[i + 1]) / mat[i, i]
+
+        for i in range(n - 2, -1, -1):
+            acc = 0
+            for j in range(i, n):
+                acc += sol[j] * mat[i, j]
+            sol[i] = (vec[i] - acc) / mat[i, i]
+
         return sol
 
     @classmethod
@@ -82,6 +90,9 @@ class SquareMatrix:
         """Solves the system `mat * X = vec` for `X`.
         The algorithm is stable for diagonal dominant `mat` matrices.
         """
+        if mat.shape[0] != mat.shape[1]:
+            raise Exception("Matrix not square")
+
         # Triangularization of `mat` and `vec`
         cls.gaussian_elim(mat, vec)
         return cls.back_substitution(mat, vec)
@@ -183,13 +194,15 @@ class Qr:
 
     @classmethod
     def solve(cls, mat: np.ndarray, vec: np.ndarray) -> np.ndarray:
-        """Solve the linear system `mat` * `sol` = `vec`"""
+        """Solve the linear system ``mat @ sol = vec``"""
         q, r = cls.factorization(mat)
         m, n = mat.shape
+
+        # Assert the correctness of the arguments
         if m < n:
             raise Exception("The system has no solution")
 
-        # solve the system `r` * `sol` = `z`
+        # solve the system ``r @ sol = z``
         # `r` is a triangular square matrix of order `n`
         z = np.zeros(n)
         b = np.copy(vec)
