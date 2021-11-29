@@ -20,7 +20,7 @@ class Col:
 def example1(path: str):
     print(f"\n{Col.TITL}{' Example 1 ':-^79}{Col.RES}\n")
     if not path:
-        path = "Exemplo1.txt"
+        path = "qr_data/ex1.txt"
     file = open(path, "r")
     ls = file.readlines()
 
@@ -45,7 +45,7 @@ def example1(path: str):
 def example2(path: str):
     print(f"\n{Col.TITL}{' Example 2 ':-^79}{Col.RES}\n")
     if not path:
-        path = "Exemplo2.txt"
+        path = "qr_data/ex2.txt"
     file = open(path, "r")
     ls = file.readlines()
 
@@ -87,7 +87,7 @@ def example2(path: str):
 def example3(path: str):
     print(f"\n{Col.TITL}{' Example 3 ':-^79}{Col.RES}\n")
     if not path:
-        path = "Exemplo3.txt"
+        path = "qr_data/ex3.txt"
     file = open(path, "r")
     ls = file.readlines()
 
@@ -122,7 +122,7 @@ def example3(path: str):
 def example4(path: str):
     print(f"\n{Col.TITL}{' Example 4 ':-^79}{Col.RES}\n")
     if not path:
-        path = "Exemplo4.txt"
+        path = "qr_data/ex4.txt"
     file = open(path, "r")
     ls = file.readlines()
     print(f"{Col.ERR}[*] TODO: implement{Col.RES}")
