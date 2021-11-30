@@ -45,7 +45,7 @@ def example1(path: str):
 
 
 def example2(path: str):
-    """Populational growth"""
+    """Population growth"""
     print(f"\n{Col.TITL}{' Example 2 ':-^79}{Col.RES}\n")
     if not path:
         path = "qr_data/ex2.txt"
@@ -59,17 +59,6 @@ def example2(path: str):
         data[i - 1, :] = list(map(float, ls[i].replace("\n", "").split(" ")))
     year = data[:, 0]
     pop = data[:, 1]
-
-    # Print required data
-    # TODO: find yy_i and insert it into the zip for printing!!
-    triple = [x for x in zip(year, pop)]
-    print(
-        f"{Col.INF} From the input we got the following data:\n"
-        "[(t_i, y_i, yy_i)] = ["
-    )
-    for x in triple:
-        print(f"    {x},")
-    print("]\n")
 
     mat = np.ndarray((m, 4))
     for i in range(m):
@@ -88,8 +77,23 @@ def example2(path: str):
         f"{Col.INF} Given the system (A b):\n{np.column_stack((mat, pop))}\n\n"
         f"{Col.INF} The obtained solution is:\n{sol}\n\n"
         f"{Col.INF} Residue norm is: {np.linalg.norm(res)}\n\n"
-        f"{Col.SOL} Approximate population in 2010: {pop2010} million"
+        f"{Col.SOL} Approximate population in 2010: {pop2010} million\n"
     )
+
+    # Print required data
+    def fit(t: float, c: np.ndarray) -> float:
+        s = (t - 1950.0) / 50.0
+        return c[0] + c[1] * s + c[2] * (s ** 2) + c[3] * (s ** 3)
+
+    yy = [fit(t, sol) for t in year]
+    triple = [x for x in zip(year, pop, yy)]
+    print(
+        f"{Col.INF} From the input we got the following data:\n"
+        "[(t_i, y_i, yy_i)] = ["
+    )
+    for x in triple:
+        print(f"    {x},")
+    print("]\n")
 
 
 
@@ -127,8 +131,9 @@ def example3(path: str):
         f"{Col.INF} Residue norm is: {np.linalg.norm(res)}"
     )
 
-    # Find closest points on elipse
+    # Find closest points on ellipse
     def solve(x: float, y: float, coeff: np.ndarray) -> float:
+        """Given x, returns the nearest y on the ellipse"""
         def distance(p0, p1):
             return math.sqrt((p0[0] - p1[0]) ** 2 + (p0[1] - p1[1]) ** 2)
 
@@ -146,16 +151,38 @@ def example3(path: str):
 
     yy = [solve(x, y, sol) for x, y in zip(xs, ys)]
     close = zip(xs, ys, yy)
-    print(f"{Col.INF} The closest points are:\n[(x_i, y_i, yy_i)] = [\n")
+    print(f"{Col.INF} The closest points are:\n[(x_i, y_i, yy_i)] = [")
     for p in close:
         print(f"    {p},")
     print("]\n")
 
 
-# TODO: find some interesting application of qr factorization algorithm
 def example4(path: str):
+    """Rocket velocity"""
     print(f"\n{Col.TITL}{' Example 4 ':-^79}{Col.RES}\n")
-    print(f"{Col.ERR}[*] TODO: implement{Col.RES}")
+    if not path:
+        path = "qr_data/ex4.txt"
+    file = open(path, "r")
+    ls = file.readlines()
+
+    n = int(ls[0].replace("\n", ""))
+    data = np.zeros((n, 2))
+    for i in range(1, n + 1):
+        data[i - 1, :] = list(map(float, ls[i].replace("\n", "").split(" ")))
+    time = data[:, 0]
+    height = data[:, 1]
+
+    mat = np.ndarray((n, 1))
+    for i in range(n):
+        mat[i, 0] = time[i]
+
+    sol = Qr.solve(mat, height)
+    res = height - np.matmul(mat, sol)
+    print(
+        f"{Col.INF} Given the system (A b):\n{np.column_stack((mat, height))}"
+        f"\n\n{Col.SOL} The obtained solution is:\n{sol}\n\n"
+        f"{Col.INF} Residue norm is: {np.linalg.norm(res)}"
+    )
 
 
 def main():
@@ -165,19 +192,19 @@ def main():
         ans = input(
             f"\n{Col.QST} Examples:\n"
             "   [1] Linear System;\n"
-            "   [2] Populational growth;\n"
+            "   [2] Population growth;\n"
             "   [3] Planetary orbit;\n"
-            f"   [4] {Col.WAR}****TODO****{Col.RES}\n"
+            "   [4] Rocket velocity\n"
             f"{Col.QST} Which one would you like to run? [1, 2, 3, 4] "
         )
-        examples = {"1": example1, "2": example2, "3": example3, "4": example4}
+        exs = {"1": example1, "2": example2, "3": example3, "4": example4}
 
-        if ans in examples:
+        if ans in exs:
             arg = input(
                 f"\n{Col.QST} Please provide the path for the input file\n"
                 f"{Col.INF} "
             )
-            examples[ans](arg)
+            exs[ans](arg)
         else:
             ans_err = input(
                 f"\n{Col.ERR}[*] Unfortunately such example {ans} "
