@@ -7,6 +7,7 @@ Computacao III (CCM): EP 3 QR Factorization test
 """
 from numerical.matrix.linear_sys import Qr
 import numpy as np
+import math
 
 class Col:
     QST = "\033[1;32m::\033[0m"
@@ -18,6 +19,7 @@ class Col:
     RES = "\033[0m"
 
 def example1(path: str):
+    """Solve linear system"""
     print(f"\n{Col.TITL}{' Example 1 ':-^79}{Col.RES}\n")
     if not path:
         path = "qr_data/ex1.txt"
@@ -43,6 +45,7 @@ def example1(path: str):
 
 
 def example2(path: str):
+    """Populational growth"""
     print(f"\n{Col.TITL}{' Example 2 ':-^79}{Col.RES}\n")
     if not path:
         path = "qr_data/ex2.txt"
@@ -56,35 +59,42 @@ def example2(path: str):
         data[i - 1, :] = list(map(float, ls[i].replace("\n", "").split(" ")))
     year = data[:, 0]
     pop = data[:, 1]
+
+    # Print required data
     # TODO: find yy_i and insert it into the zip for printing!!
+    triple = [x for x in zip(year, pop)]
     print(
         f"{Col.INF} From the input we got the following data:\n"
-        f"[(t_i, y_i, yy_i)] =\n{[x for x in zip(year, pop)]}\n\n"
+        "[(t_i, y_i, yy_i)] = ["
     )
+    for x in triple:
+        print(f"    {x},")
+    print("]\n")
 
     mat = np.ndarray((m, 4))
     for i in range(m):
-        mat[i, 0] = 1
-        mat[i, 1] = (year[i] - 1950) / 50
-        mat[i, 2] = ((year[i] - 1950) / 50) ** 2
-        mat[i, 3] = ((year[i] - 1950) / 50) ** 3
+        s = (year[i] - 1950.0) / 50.0
+        mat[i, 0] = 1.0
+        for j in range(1, 4):
+            mat[i, j] = s ** j
 
     sol = Qr.solve(mat, pop)
-    value_at_2010 = sol[0]
+    pop2010 = sol[0]
     for i in range(1, 4):
-        value_at_2010 += sol[i] * ((6 / 5) ** i)
+        pop2010 += sol[i] * ((6 / 5) ** i)
     res = pop - np.matmul(mat, sol)
 
     print(
         f"{Col.INF} Given the system (A b):\n{np.column_stack((mat, pop))}\n\n"
         f"{Col.INF} The obtained solution is:\n{sol}\n\n"
         f"{Col.INF} Residue norm is: {np.linalg.norm(res)}\n\n"
-        f"{Col.SOL} Approximate population in 2010: {value_at_2010}"
+        f"{Col.SOL} Approximate population in 2010: {pop2010} million"
     )
 
 
 
 def example3(path: str):
+    """Planetary orbit"""
     print(f"\n{Col.TITL}{' Example 3 ':-^79}{Col.RES}\n")
     if not path:
         path = "qr_data/ex3.txt"
@@ -96,18 +106,18 @@ def example3(path: str):
     data = np.zeros((m, 2))
     for i in range(1, m + 1):
         data[i - 1, :] = list(map(float, ls[i].replace("\n", "").split(" ")))
-    x_coor = data[:, 0]
-    y_coor = data[:, 1]
+    xs = data[:, 0]
+    ys = data[:, 1]
 
     mat = np.ndarray((m, 5))
 
     f = np.full(shape=m, fill_value=-1.0, dtype=float)
     for i in range(10):
-        mat[i, 0] = x_coor[i] ** 2
-        mat[i, 1] = x_coor[i] * y_coor[i]
-        mat[i, 2] = y_coor[i] ** 2
-        mat[i, 3] = x_coor[i]
-        mat[i, 4] = y_coor[i]
+        mat[i, 0] = xs[i] ** 2
+        mat[i, 1] = xs[i] * ys[i]
+        mat[i, 2] = ys[i] ** 2
+        mat[i, 3] = xs[i]
+        mat[i, 4] = ys[i]
 
     sol = Qr.solve(mat, f)
     res = f - np.matmul(mat, sol)
@@ -117,14 +127,34 @@ def example3(path: str):
         f"{Col.INF} Residue norm is: {np.linalg.norm(res)}"
     )
 
+    # Find closest points on elipse
+    def solve(x: float, y: float, coeff: np.ndarray) -> float:
+        def distance(p0, p1):
+            return math.sqrt((p0[0] - p1[0]) ** 2 + (p0[1] - p1[1]) ** 2)
+
+        a = coeff[2]
+        b = x * coeff[1] + coeff[4]
+        c = coeff[0] * x * x + coeff[3] * x + 1
+        y0 = (-b - math.sqrt(b * b - 4 * a * c)) / (2 * a)
+        y1 = (-b + math.sqrt(b * b - 4 * a * c)) / (2 * a)
+        d0 = distance((x, y), (x, y0))
+        d1 = distance((x, y), (x, y1))
+        if d0 < d1:
+            return y0
+        else:
+            return y1
+
+    yy = [solve(x, y, sol) for x, y in zip(xs, ys)]
+    close = zip(xs, ys, yy)
+    print(f"{Col.INF} The closest points are:\n[(x_i, y_i, yy_i)] = [\n")
+    for p in close:
+        print(f"    {p},")
+    print("]\n")
+
 
 # TODO: find some interesting application of qr factorization algorithm
 def example4(path: str):
     print(f"\n{Col.TITL}{' Example 4 ':-^79}{Col.RES}\n")
-    if not path:
-        path = "qr_data/ex4.txt"
-    file = open(path, "r")
-    ls = file.readlines()
     print(f"{Col.ERR}[*] TODO: implement{Col.RES}")
 
 
