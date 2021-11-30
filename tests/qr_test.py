@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
          Victor Manuel Dias Saliba     (nUSP: 11807702)
@@ -96,7 +97,6 @@ def example2(path: str):
     print("]\n")
 
 
-
 def example3(path: str):
     """Planetary orbit"""
     print(f"\n{Col.TITL}{' Example 3 ':-^79}{Col.RES}\n")
@@ -134,17 +134,13 @@ def example3(path: str):
     # Find closest points on ellipse
     def solve(x: float, y: float, coeff: np.ndarray) -> float:
         """Given x, returns the nearest y on the ellipse"""
-        def distance(p0, p1):
-            return math.sqrt((p0[0] - p1[0]) ** 2 + (p0[1] - p1[1]) ** 2)
-
         a = coeff[2]
         b = x * coeff[1] + coeff[4]
         c = coeff[0] * x * x + coeff[3] * x + 1
-        y0 = (-b - math.sqrt(b * b - 4 * a * c)) / (2 * a)
-        y1 = (-b + math.sqrt(b * b - 4 * a * c)) / (2 * a)
-        d0 = distance((x, y), (x, y0))
-        d1 = distance((x, y), (x, y1))
-        if d0 < d1:
+        sqt = math.sqrt(b * b - 4 * a * c)
+        y0 = (-b - sqt) / (2 * a)
+        y1 = (-b + sqt) / (2 * a)
+        if abs(y - y0) < abs(y - y1):
             return y0
         else:
             return y1
