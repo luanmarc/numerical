@@ -42,7 +42,7 @@ class Spline:
             raise Exception("Argument not in the interval")
 
         index = len(self.knots) - 2
-        for i in range(len(self.knots) - 3):
+        for i in range(len(self.knots) - 2):
             if self.knots[i] <= x <= self.knots[i + 1]:
                 index = i
                 break
@@ -216,13 +216,19 @@ class PeriodicSpline(Spline):
 
         # Complete spline special conditions:
         h0 = self.interval_length(0)
+        h1 = self.interval_length(1)
         hn = self.interval_length(size - 2)
-        coeff[0, -1] = h0 / (h0 + self.interval_length(1))
+        coeff[0, 1] = h1 / (h0 + h1)
+        coeff[0, -1] = h0 / (h0 + h1)
         coeff[-1, 0] = h0 / (h0 + hn)
-        coeff[-1, -2] = h0 / (hn + h0)
+        coeff[-1, -2] = hn / (hn + h1)
 
         diff1 = self.values[1] - self.values[-1]
         diffn = self.values[-1] - self.values[-2]
+        res[0] = 6 / (h0 + h1) * (
+            (self.values[2] - self.values[1]) / h1
+            - (self.values[1] - self.values[0]) / h0
+        )
         res[-1] = (6 / (h0 + hn)) * (diff1 / h0 - diffn / hn)
 
         moments = Periodic.solve(coeff, res)
