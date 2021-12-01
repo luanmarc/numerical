@@ -69,8 +69,6 @@ class Curves:
         plt.xlabel("x axis", font)
         plt.ylabel("y axis", font)
 
-        plt.show()
-
 
 def ep_test(cls, func, deriv=None, verbose=True):
     for n in [10, 20, 30, 40, 80, 160]:
@@ -130,8 +128,7 @@ def scipy_plot(x, y, n):
 
     xs = spline_x(interval)[:]
     ys = spline_y(interval)[:]
-    plt.plot(xs, ys)
-    plt.show()
+    plt.plot(xs, ys, color="green")
 
 
 def scipy_test(name: str, func, deriv=None, verbose=True):
@@ -208,15 +205,10 @@ def main():
     coord1 = [25.0, 19.0, 13.0, 9.0, 5.0, 2.2, 1.0, 3.0, 8.0, 13.0, 18.0, 25.0]
     coord2 = [5.0, 7.5, 9.1, 9.4, 9.0, 7.5, 5.0, 2.1, 2.0, 3.5, 4.5, 5.0]
     curve = Curves(coord1, coord2, 400)
-    points = curve.get_points()
-    acc = 0
-    for point in points:
-        print("Point {}: {}".format(acc, point))
-        acc += 1
-    print("Plotting...")
+    plt.scatter(coord1, coord2)
     curve.plot_curve()
-
     scipy_plot(coord1, coord2, 400)
+    plt.show()
 
 
 if __name__ == "__main__":
