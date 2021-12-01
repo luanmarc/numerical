@@ -10,6 +10,7 @@ from numerical.matrix.linear_sys import Qr
 import numpy as np
 import math
 
+
 class Col:
     QST = "\033[1;32m::\033[0m"
     SOL = "\033[1;35m=>\033[0m"
@@ -18,6 +19,7 @@ class Col:
     ERR = "\033[1;31m"
     TITL = "\033[1;35m"
     RES = "\033[0m"
+
 
 def example1(path: str):
     """Solve linear system"""
