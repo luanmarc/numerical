@@ -10,14 +10,14 @@ from typing import Callable
 import random
 import math
 
-State = list[int]
+State = list[int | float]
 Reaction = list[int]
-Realisation = list[float]
 Time = float
 Propensity = Callable[[State], float]
+StopCondition = Callable[[State, Time, int], bool]
 
 def ssa(x0: State, r: list[Reaction], a: list[Propensity],
-        cond: Callable[[State, Time, int], bool], t0: float=0) -> State:
+        cond: StopCondition, t0: Time=0) -> State:
     """Stochastic simulation algorithm:
     `x0`: initial state of the system
     `r`: list of state-changing reactions
@@ -50,3 +50,41 @@ def ssa(x0: State, r: list[Reaction], a: list[Propensity],
             _ssa(x, t)
         return x
     return _ssa(x0, t0)
+
+
+def elmaru(x0: State, r: list[Reaction], a: list[Propensity],
+           cond: StopCondition, L: int) -> State:
+    """Euler-Maruyama method for Chemical Langevin Equation
+    `x0`: initial state of the system
+    `r`: list of state-changing reactions
+    `a`: list of callable propensity functions
+    `cond`: callable stopping condition function
+    `N`: number of time steps
+    `t0`: starting time (optional, if not set, we let `t0 = 0`)
+    """
+    N = len(x0)
+    M = len(r)
+    dt = 1/L # time step
+    def _elmaru(x: State, n: int=0) -> State:
+        z = [random.random() for _ in range(M)]
+        tau = n * dt
+        sqrt_tau = math.sqrt(tau)
+        ax = [_a(x) for _a in a]
+        sqrt_ax = [math.sqrt(_ax) for _ax in ax]
+
+        y = [
+            sum([tau * ax[j] * r[i][j] for j in range(M)])
+            for i in range(N)
+        ]
+        sqy = [
+            sum([sqrt_tau * sqrt_ax[j] * z[j] * r[i][j] for j in range(M)])
+            for i in range(N)
+        ]
+
+        n = n + 1
+        x = x + y + sqy
+        if not cond(x, tau, n):
+            _elmaru(x, n)
+        return x
+
+    return _elmaru(x0)
