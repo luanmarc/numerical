@@ -5,25 +5,49 @@ Authors: Luiz Gustavo Mugnaini Anselmo (nUSP: 11809746)
 
 Computacao IV (CCM): Chemistry project
 """
-from typing import Callable
+from typing import Callable, Optional
 import matplotlib.pyplot as plt
 from random import random
+import numpy as np
 import math
 
 
-def plot(ts, xs, ytitle: str, title: str, labels: list[str]):
-    c = ["green", "orange", "magenta", "black"]
-    font = { "family": "monospace", "size": 20 }
+def plot(
+    ts: list[float],
+    _xs: list[list[int]],
+    _ys: list[list[float]],
+    title: str,
+    labels: list[str]
+):
+    """Plot data"""
+    font = { "family": "monospace", "size": 15 }
+    _font = { "family": "monospace", "size": 10 }
+    title_font = { "family" : "monospace", "size": 20, "weight": "bold" }
+    c = ["green", "orange", "magenta", "black",
+         "purple", "olive", "cyan", "blue"]
+    xs = np.array(_xs)
+    ys = np.array(_ys)
+    kinds = len(xs[0])
+    if len(_ys) != 0:
+        plt.subplot(211)
 
     # Plot the evolution of each species
-    kinds = len(xs[0])
     for k in range(kinds):
-       plt.plot(ts, [x[k] for x in xs], color=c[k])
+       plt.plot(ts, xs[:, k], color=c[k])
+    plt.xlabel("Time", font)
+    plt.ylabel("Nr. molecules", font)
+    plt.legend(labels, prop=_font)
 
-    plt.title(title, font)
-    plt.xlabel("time", font)
-    plt.ylabel(ytitle, font)
-    plt.legend(labels)
+    if len(_ys) != 0:
+        plt.subplot(212)
+        for k in range(kinds):
+            plt.plot(ts, ys[:, k], color=c[k])
+        plt.xlabel("Time", font)
+        plt.ylabel("Concentration (M)", font)
+        plt.legend(labels, prop=_font)
+        plt.suptitle(title, fontproperties=title_font)
+    else:
+        plt.title(title, font)
     plt.show()
 
 
@@ -31,13 +55,14 @@ def ssa(
     x0: list[int],
     r: list[list[int]],
     a: list[Callable[[list[int]], float]],
-    vol: float,
+    vol: Optional[float]=None,
+    conc: bool=False,
     tspan: float=50,
     t0: float=0,
     title: str="",
     _plot: bool=True,
     labels: list[str]=[]
-):
+) -> tuple[list[float], list[list[int]], list[list[float]]]:
     """Stochastic simulation algorithm:
     `x0`: initial state of the system
     `r`: list of state-changing reactions
@@ -45,13 +70,19 @@ def ssa(
     `tspan`: time span for the simulation (optional, defaults to 50)
     `t0`: starting time (optional, defaults to 0)
     """
-    C = 6.023e23 * vol # Used to convert from #molecules -> concentration
     N = len(x0) # Number of species
-    M = len(r) # Number of possible reactions
-    ts = [t0] # Time recording
-    xs = [x0] # State recording
-    ys = [[x0[j]/C for j in range(N)]] # Records concentrations
+    M = len(r)  # Number of possible reactions
+    ts = [t0]   # Time recording
+    xs = [x0]   # State recording
     t = t0
+
+    C = 0
+    if vol != None:
+        C = 6.023e23 * vol # Used to convert from #molecules -> concentration
+
+    ys = [] # Records concentrations
+    if conc and vol != None:
+        ys.append([x0[j]/C for j in range(N)])
 
     while t - t0 < tspan:
         x = xs[-1]
@@ -76,12 +107,11 @@ def ssa(
         t = t + tau
         xs.append(x)
         ts.append(t)
-        ys.append([xs[-1][j]/C for j in range(N)])
+        if conc:
+            ys.append([xs[-1][j]/C for j in range(N)])
 
     if _plot:
-        print("Plotting data-points for stochastic model...")
-        plot(ts, xs, "Nr. molecules", title, labels)
-        plot(ts, ys, "Concentration", title, labels)
+        plot(ts, xs, ys, title, labels)
 
     return ts, xs, ys
 
@@ -96,7 +126,7 @@ def elmaru(
     title: str="",
     _plot: bool=True,
     labels: list[str]=[],
-):
+) -> tuple[list[float], list[list[int]], list[list[float]]]:
     """Euler-Maruyama method for Chemical Langevin Equation
     `x0`: initial state of the system
     `r`: list of state-changing reactions
@@ -106,14 +136,14 @@ def elmaru(
     `L`: number of time steps (optional, defaults to 250)
     """
     C = 6.023e23 * vol # Used to convert from #molecules -> concentration
-    N = len(x0) # Number of species
-    M = len(r) # Number of reactions
-    tau = tspan / L # Fixed time step
+    N = len(x0)        # Number of species
+    M = len(r)         # Number of reactions
+    tau = tspan / L    # Fixed time step
 
     # Initial setup
-    xs = [x0] # State recording
+    xs = [x0]                          # State recording
     ys = [[x0[j]/C for j in range(N)]] # Records concentrations
-    ts = [n * tau for n in range(L)] # Time records
+    ts = [n * tau for n in range(L)]   # Time records
 
     # Simulations
     for _ in range(L - 1):
@@ -138,8 +168,6 @@ def elmaru(
         ys.append([xs[-1][j]/C for j in range(N)])
 
     if _plot:
-        print("Plotting the evolution of the Euler-Maruyama model...")
-        plot(ts, xs, "Nr. molecules", title, labels)
-        plot(ts, ys, "concentration", title, labels)
+        plot(ts, xs, ys, title, labels)
 
     return ts, xs, ys
