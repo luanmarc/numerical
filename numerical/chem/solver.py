@@ -57,24 +57,37 @@ def ssa(
     a: list[Callable[[list[int]], float]],
     vol: Optional[float]=None,
     conc: bool=False,
-    tspan: float=50,
     t0: float=0,
-    title: str="",
+    tspan: float=50,
+    event: Optional[Callable[[float, list[int]], bool]]=None,
     _plot: bool=True,
+    title: str="",
     labels: list[str]=[]
 ) -> tuple[list[float], list[list[int]], list[list[float]]]:
     """Stochastic simulation algorithm:
-    `x0`: initial state of the system
+    `x0`: initial state (number of molecules) of the system
     `r`: list of state-changing reactions
     `a`: list of callable propensity functions
-    `tspan`: time span for the simulation (optional, defaults to 50)
+    `vol`: system's volume (optional)
+    `conc`: calculate concentrations (optional, default is False)
+    `tspan`: time span for the simulation (optional, default is 50)
     `t0`: starting time (optional, defaults to 0)
+    `title`: plot title (optional, default is "")
+    `_plot`: whether or not to make a plot (optional, default is True)
+    `labels`: labels given to the plot (optional, default is [])
+
+    Returns a tuple `(ts, xs, ys)`, where:
+    `ts`: list with each time point
+    `xs`: list of states (number of molecules) of the system throughout `ts`
+    `ys`: list of states (concentration of molecules) of the system
+        throughout `ts`. If `conc=False` then `ys=[]` is returned.
     """
     N = len(x0) # Number of species
     M = len(r)  # Number of possible reactions
     ts = [t0]   # Time recording
     xs = [x0]   # State recording
-    t = t0
+    t = t0      # Initial time
+    check_for_event = True
 
     C = 0
     if vol != None:
@@ -86,6 +99,9 @@ def ssa(
 
     while t - t0 < tspan:
         x = xs[-1]
+        if event != None and check_for_event == True:
+            check_for_event = event(t, x)
+
         ax = [_a(x) for _a in a]
         e1, e2 = (random(), random())
         sum_ax = sum(ax)
@@ -128,12 +144,21 @@ def elmaru(
     labels: list[str]=[],
 ) -> tuple[list[float], list[list[int]], list[list[float]]]:
     """Euler-Maruyama method for Chemical Langevin Equation
-    `x0`: initial state of the system
+    `x0`: initial state (number of molecules) of the system
     `r`: list of state-changing reactions
     `a`: list of callable propensity functions
     `vol`: volume of the system
-    `tspan`: time span for the simulation (optional, defaults to 50)
-    `L`: number of time steps (optional, defaults to 250)
+    `tspan`: time span for the simulation (optional, defaults to `50`)
+    `L`: number of time steps (optional, defaults to `250`)
+    `title`: title of the plot (optional, defaults to `""`)
+    `_plot`: whether or not to plot (optional, defaults to `True`)
+    `labels`: labels given to the plot (optional, default is `[]`)
+
+    Returns a tuple `(ts, xs, ys)`, where:
+    `ts`: list with each time point
+    `xs`: list of states (number of molecules) of the system throughout `ts`
+    `ys`: list of states (concentration of molecules) of the system
+        throughout `ts`. If `conc=False` then `ys=[]` is returned.
     """
     C = 6.023e23 * vol # Used to convert from #molecules -> concentration
     N = len(x0)        # Number of species
