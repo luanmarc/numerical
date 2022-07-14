@@ -356,6 +356,7 @@ def argn():
 
 def lac():
     """Lac-operon model"""
+    print(f"\n{TITL}{' Lac-operon model ':-^79}{RES}\n")
     x0 = [1, 0, 50, 1, 100, 0, 0, 20, 0, 0, 0]
     r = [
         # Inhibitor transcription: IDNA -> IDNA + IRNA
