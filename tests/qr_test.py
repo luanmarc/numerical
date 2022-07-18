@@ -211,8 +211,7 @@ def main():
             )
             if not ans_err or ans_err in ["y", "Y"]:
                 stop = True
-            else:
-                continue
+            continue
 
         ans_ex = input(
             f"\n{Col.QST} Would you like to test another example? [Y/n] "

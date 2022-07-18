@@ -9,26 +9,40 @@ from typing import Callable, Optional
 import matplotlib.pyplot as plt
 from random import random
 import numpy as np
-import math
 
 
 def plot(
     ts: list[float],
     _xs: list[list[int]],
     _ys: list[list[float]],
-    title: str,
-    labels: list[str]
+    title: Optional[str],
+    labels: Optional[list[str]]
 ):
-    """Plot data"""
+    """Visualization of the data:
+    `ts`: time points
+    `_xs`: record of the number of molecules of the system
+    `_ys`: record of the concentration of each molecule
+    `title`: title for the final plot
+    `labels`: list of labels for each differen species of molecules
+    """
+    # Font config
     font = { "family": "monospace", "size": 15 }
     _font = { "family": "monospace", "size": 10 }
     title_font = { "family" : "monospace", "size": 20, "weight": "bold" }
-    c = ["green", "orange", "magenta", "black",
-         "purple", "olive", "cyan", "blue"]
-    xs = np.array(_xs)
+
+    # Collection of colors to be used for each species of molecules
+    c = [
+        "tab:blue", "tab:orange", "tab:purple", "black",
+        "magenta",  "darkorange", "tab:gray",   "forestgreen"
+    ]
+
+    xs = np.array(_xs) # Number of molecules
+    kinds = len(xs[0]) # Number of different species
+
+    # Concentration
     ys = np.array(_ys)
-    kinds = len(xs[0])
-    if len(_ys) != 0:
+    if not _ys is None:
+        # Only start a subplot if the concentration was specified
         plt.subplot(211)
 
     # Plot the evolution of each species
@@ -38,7 +52,7 @@ def plot(
     plt.ylabel("Nr. molecules", font)
     plt.legend(labels, prop=_font)
 
-    if len(_ys) != 0:
+    if not _ys is None:
         plt.subplot(212)
         for k in range(kinds):
             plt.plot(ts, ys[:, k], color=c[k])
@@ -55,32 +69,36 @@ def ssa(
     x0: list[int],
     r: list[list[int]],
     a: list[Callable[[list[int]], float]],
+    tspan: float,
     vol: Optional[float]=None,
     conc: bool=False,
     t0: float=0,
-    tspan: float=50,
     event: Optional[Callable[[float, list[int]], bool]]=None,
     _plot: bool=True,
-    title: str="",
-    labels: list[str]=[]
-) -> tuple[list[float], list[list[int]], list[list[float]]]:
+    title: Optional[str]=None,
+    labels: Optional[list[str]]=None
+) -> tuple[list[float], list[list[int]], Optional[list[list[float]]]]:
     """Stochastic simulation algorithm:
     `x0`: initial state (number of molecules) of the system
     `r`: list of state-changing reactions
     `a`: list of callable propensity functions
-    `vol`: system's volume (optional)
-    `conc`: calculate concentrations (optional, default is False)
-    `tspan`: time span for the simulation (optional, default is 50)
-    `t0`: starting time (optional, defaults to 0)
-    `title`: plot title (optional, default is "")
-    `_plot`: whether or not to make a plot (optional, default is True)
-    `labels`: labels given to the plot (optional, default is [])
+    `tspan`: time span for the simulation
+    `vol`: system's volume (optional, default is `None`)
+    `conc`: calculate concentrations (optional, default is `False`)
+    `t0`: starting time (optional, defaults to `0`)
+    `event`: callable function taking as arguments the time and current state of
+        the system, should return a `bool` for whether or not to continue the
+        check for the event (`True`: continue check; `False`: stop check)
+    `_plot`: whether or not to make a plot (optional, default is `True`)
+    `title`: plot title (optional, default is `None`)
+    `labels`: labels given to the plot (optional, default is `None`)
 
     Returns a tuple `(ts, xs, ys)`, where:
-    `ts`: list with each time point
-    `xs`: list of states (number of molecules) of the system throughout `ts`
-    `ys`: list of states (concentration of molecules) of the system
-        throughout `ts`. If `conc=False` then `ys=[]` is returned.
+    `ts`: 1-dimensional list with each time point
+    `xs`: 2-dimensional list of states (number of molecules) of the system
+        throughout `ts`
+    `ys`: 2-dimensional list of states (concentration of molecules) of the
+        system throughout `ts`. If `conc = False` then `ys = None` is returned.
     """
     N = len(x0) # Number of species
     M = len(r)  # Number of possible reactions
@@ -106,7 +124,7 @@ def ssa(
         e1, e2 = (random(), random())
         sum_ax = sum(ax)
 
-        # j0: index of the occured reaction
+        # `j0`: index of the occured reaction
         j0, acc = 0, 0
         for j in range(M):
             # Calculates the least index satisfying acc > e1 * sumprop
@@ -115,15 +133,17 @@ def ssa(
                 j0 = j
                 break
 
-        # Time taken for the reaction j0 to occur
-        tau = math.log(1/e2) / sum_ax
-
-        # Update both the state and the current time
+        # Change system's state after reaction `j0`
         x = [x[j] + r[j0][j] for j in range(N)]
-        t = t + tau
         xs.append(x)
+
+        # Time for reaction `j0` to occur
+        tau = np.log(1/e2) / sum_ax
+        t = t + tau
         ts.append(t)
+
         if conc:
+            # Calculate concentration only if required
             ys.append([xs[-1][j]/C for j in range(N)])
 
     if _plot:
@@ -137,28 +157,29 @@ def elmaru(
     r: list[list[int]],
     a: list[Callable[[list[int]], float]],
     vol: float,
-    tspan: float=50,
+    tspan: float,
     L: int=250,
-    title: str="",
+    title: Optional[str]=None,
     _plot: bool=True,
-    labels: list[str]=[],
+    labels: Optional[list[str]]=None,
 ) -> tuple[list[float], list[list[int]], list[list[float]]]:
     """Euler-Maruyama method for Chemical Langevin Equation
     `x0`: initial state (number of molecules) of the system
     `r`: list of state-changing reactions
     `a`: list of callable propensity functions
     `vol`: volume of the system
-    `tspan`: time span for the simulation (optional, defaults to `50`)
+    `tspan`: time span for the simulation
     `L`: number of time steps (optional, defaults to `250`)
-    `title`: title of the plot (optional, defaults to `""`)
+    `title`: title of the plot (optional, defaults to `None`)
     `_plot`: whether or not to plot (optional, defaults to `True`)
-    `labels`: labels given to the plot (optional, default is `[]`)
+    `labels`: labels given to the plot (optional, default is `None`)
 
     Returns a tuple `(ts, xs, ys)`, where:
-    `ts`: list with each time point
-    `xs`: list of states (number of molecules) of the system throughout `ts`
-    `ys`: list of states (concentration of molecules) of the system
-        throughout `ts`. If `conc=False` then `ys=[]` is returned.
+    `ts`: 1-dimensional array with each time point
+    `xs`: 2-dimensional array of states (number of molecules) of the system
+        throughout `ts`
+    `ys`: 2-dimensional array of states (concentration of molecules) of the
+        system throughout `ts`.
     """
     C = 6.023e23 * vol # Used to convert from #molecules -> concentration
     N = len(x0)        # Number of species
@@ -177,7 +198,7 @@ def elmaru(
 
         # Coefficients for each type of reaction
         d = [
-            tau * axs[j] + math.sqrt(abs(tau * axs[j])) * random()
+            tau * axs[j] + np.sqrt(abs(tau * axs[j])) * random()
             for j in range(M)
         ]
 
