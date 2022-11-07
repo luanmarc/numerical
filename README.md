@@ -2,13 +2,13 @@
 
 ## How to use the package:
 
-First you need to clone this repository with
+First you need to clone this repository with:
 ```console
-$ git clone https://github.com/luizmugnaini/numerical
+$ git clone https://github.com/luizmugnaini/numerical && cd numerical/
 ```
-Then, in order to correctly setup the path to the package, you'll need to
-install the project locally by running
+In order to correctly setup the environment, we shall use Poetry:
 ```console
-$ python -m pip install -e path/to/numerical
+$ # pacman -S python-poetry
+$ poetry install
 ```
 Now you are good to go!
